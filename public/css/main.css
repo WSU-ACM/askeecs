@@ -1,0 +1,97 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+@import url(http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700);
+body {
+	color: #5e6a71;
+}
+
+.askeecs-topic-nav {
+	padding-top: 20px;
+	padding-left: 15px;
+}
+.askeecs-topic-list {
+	list-style: none outside none;
+	margin-left: 0;
+	padding-left:0;
+}
+
+.askeecs-media {
+	float: left;
+	margin-right: 20px;
+}
+
+.askeecs-widget-box {
+	width: 40px;
+	height: 56px;
+	display: inline-block;
+}
+
+.askeecs-upper {
+	background-color: rgb(237, 237, 237);
+	color: rgb(142, 142, 142);
+	font-size: 16px;
+	line-height: 21px;
+	text-align: center;
+	padding: 5px 0px;
+	font-weight: bold;
+	border: 1px solid rgb(187, 187, 187);
+	border-radius: 3px 3px 0px 0px;	
+}
+
+.askeecs-lower {
+	text-align: center;
+	line-height: 21px;
+	padding-top: 2px;
+	border-right: 1px solid rgb(187, 187, 187);
+	border-width: medium 1px 1px;
+	border-style: none solid solid;
+	border-color: -moz-use-text-color rgb(187, 187, 187) rgb(187, 187, 187);
+	-moz-border-top-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-bottom-colors: none;
+	-moz-border-left-colors: none;
+	border-image: none;
+	border-radius: 0px 0px 3px 3px;
+}
+
+.askeecs-question {
+	padding: 25px 0px;
+	overflow: hidden;
+	border-bottom: 1px solid #ccc;
+}
+
+.askeecs-ask-btn-center {
+	margin: 20px -20px 40px;
+	text-align:center;
+}
+
+.askeecs-question-details {
+	overflow: hidden;
+}
+
+.askeecs-question-details h3 {
+	margin-top: 0;
+	font-weight:bold;
+}
+
+.askeecs-question-answered {
+color: rgb(255, 255, 255);
+background-color: rgb(92, 184, 92);
+border-color: rgb(76, 174, 76);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
