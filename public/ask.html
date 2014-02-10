@@ -95,10 +95,10 @@
 			<hr>
 			<div class="">
 				<div class="askeecs-question clearfix">
-					<form>
+					<form role="form" id="f-question">
 						<div class="form-group">
 							<label for="qTitle">Topic</label>
-							<input type="text" class="form-control" id="gTitle" placeholder="Title">
+							<input type="text" name="title" class="form-control" id="gTitle" placeholder="Title">
 						</div>
 						<div class="form-group">
 							<div class="btn-toolbar" role="toolbar">
@@ -117,7 +117,7 @@
 									<button type="button" class="btn btn-default btn-sm"><span class="fa fa-list-ol"></span></button>
 								</div>
 							</div>
-							<textarea class="form-control form-control-has-group" rows="10" id="mk-input" oninput="this.editor.update()"></textarea>
+							<textarea name="body" class="form-control form-control-has-group" rows="10" id="mk-input" oninput="this.editor.update()"></textarea>
 						</div>
 						<hr>
 						<div class="form-group">
@@ -127,10 +127,10 @@
 						</div>
 						<div class="form-group">
 							<label for="qTags">Tags</label>
-							<input type="text" class="form-control" id="gTag" placeholder="Tags">
+							<input type="text" name="tags" class="form-control" id="gTag" placeholder="Tags">
 						</div>
 						<div class="form-group">
-							<button type="button" class="btn btn-primary pull-right">Ask Question</button>
+							<button id="submit-question" type="submit" class="btn btn-primary pull-right">Ask Question</button>
 						</div>
 					</form>
 				</div>
@@ -203,6 +203,34 @@
 			this.update();
 		  }
 		  new Editor(document.getElementById("mk-input"), document.getElementById("mk-preview"));
+		</script>
+		<script>
+			$.fn.serializeObject = function()
+{
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
+			$("#f-question").on('submit', function (event) {
+				var data = $(this).serializeObject();
+				data.tags = data.tags.split(' ');
+
+				event.preventDefault();
+
+				$.post("/question", data, function (res) {
+					console.log(res);
+				}, "json");
+			})
 		</script>
 
         <script>
