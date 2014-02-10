@@ -101,6 +101,7 @@ func (c *Collection) FindWhere(match bson.M) []I {
 	v := c.template.New()
 	for i.Next(v) {
 		out = append(out,v)
+		v = c.template.New()
 	}
 	return out
 }
