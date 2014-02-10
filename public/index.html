@@ -2,7 +2,7 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" ng-app="askeecs"> <!--<![endif]-->
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -22,6 +22,7 @@
 
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script>
+		<script src="js/controller.js"></script>
     </head>
     <body>
         <!--[if lt IE 7]>
@@ -97,8 +98,8 @@
 				<li><a href="#">Trending</a></li>
 			</ul>
 			<div class="">
-				<ul class="askeecs-topic-list">
-					<li class="askeecs-question clearfix">
+				<ul class="askeecs-topic-list" ng-controller="QuestionListCtrl">
+					<li class="askeecs-question clearfix" ng-repeat="question in questions">
 						<div class="askeecs-media askeecs-widget askeecs-widget-box">
 							<div class="askeecs-upper askeecs-question-answered">5
 							</div>
@@ -107,10 +108,10 @@
 							</div>
 						</div>
 						<div class="askeecs-question-details clearfix">
-							<h3><a href="#">How do I FORK CHILD like KC does?</a></h3>
+							<h3><a href="#">{{question.title}}</a></h3>
 							<div class="askeecs-question-author pull-right">
 								<span>5m ago</span>
-								<a href="#">student123</a>
+								<a href="#">{{question.author}}</a>
 								<span class="badge">15</span>
 							</div>
 							<div>
