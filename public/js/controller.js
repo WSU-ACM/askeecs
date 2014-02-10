@@ -10,6 +10,9 @@ askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
 
 askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', '$sce',
 	function ($scope, $http, $window, $sce) {
+		$scope.markdown="";
+		$scope.title="";
+		$scope.tags="";
 		$scope.md2Html = function() {
 			$scope.html = $window.marked($scope.markdown);
 			$scope.htmlSafe = $sce.trustAsHtml($scope.html);
@@ -19,6 +22,36 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 			console.log($scope.markdown);
 			console.log($scope.tags);
 			console.log($scope.title);
+			delete $scope.errorMarkdown;
+			delete $scope.errorTitle;
+			delete $scope.errorTags;
+
+			var err = false;
+
+			if ($scope.markdown.length < 120)
+			{
+				$scope.errorMarkdown = "Your question must be 120 characters or more."
+				err = true;
+			}
+
+			if ($scope.title.length == 0)
+			{
+				$scope.errorTitle = "You must enter a title."
+				err = true;
+			}
+
+			if ($scope.tags.length == 0)
+			{
+				$scope.errorTags = "You must have at least one tag."
+				err = true;
+			}
+
+
+
+
+			if (err) {
+				return;
+			}
 
 			$http({
 				method: 'POST',
