@@ -53,8 +53,9 @@ type Collection struct {
 
 func (c *Collection) Save(doc I) error {
 	//TODO: handle errors?
-	c.col.Upsert(bson.M{"ID":doc.GetID()}, doc)
-	return nil
+	log.Printf("Saving document.")
+	err := c.col.Insert(doc)
+	return err
 }
 
 func (c *Collection) FindByID(ID bson.ObjectId) I {

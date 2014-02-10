@@ -7,7 +7,8 @@ import (
 	"github.com/codegangsta/martini"
 	"labix.org/v2/mgo/bson"
 	"encoding/json"
-	//"encoding/hex"
+	"encoding/hex"
+	"log"
 )
 
 type Score struct {
@@ -16,7 +17,7 @@ type Score struct {
 }
 
 type Question struct {
-	ID bson.ObjectId
+	ID bson.ObjectId "_id,omitempty"
 	Title string
 	Author string
 	Tags []string
@@ -75,13 +76,21 @@ func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	q.ID = bson.NewObjectId()
-	s.questions.Save(&q)
-	w.Write([]byte(q.ID))
+	fmt.Println(q.ID)
+	err = s.questions.Save(&q)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusTeapot)
+	}
+	str := hex.EncodeToString([]byte(q.ID))
+	w.Write([]byte(str))
 }
 
 func (s *AEServer) HandleGetQuestion(params martini.Params) (int,string) {
 	id := params["id"]
-	q,ok := s.questions.FindByID(bson.ObjectIdHex(id)).(*Question)
+	hid := bson.ObjectIdHex(id)
+	fmt.Println(hid)
+	q,ok := s.questions.FindByID(hid).(*Question)
 	if !ok || q == nil {
 		return 404,""
 	}
