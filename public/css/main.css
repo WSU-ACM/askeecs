@@ -13,6 +13,18 @@ body {
 	height: 100%;
 	position:relative;
 }
+<<<<<<< HEAD
+=======
+
+.askeecs-tag {
+	cursor: pointer;
+}
+
+.askeecs-tag:hover {
+	color: #fff;
+}
+
+>>>>>>> 6f046ac6b2635f7cce0c7bdcb7b1c8ffd7a3eb46
 .askeecs-topic-nav {
 	padding-top: 20px;
 	padding-left: 15px;
@@ -23,6 +35,11 @@ body {
 	padding-left:0;
 }
 
+.askeecs-main-banner {
+	text-align: center;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
 .askeecs-media {
 	float: left;
 	margin-right: 20px;
@@ -153,8 +170,25 @@ border-color: rgb(76, 174, 76);
 
 
 
+.center {
+	text-align: center;
+}
 
 
+.btn-group-textbox button:first-child {
+	border-bottom-left-radius: 0;
+}
 
-footer {
+.btn-group-textbox button:last-child {
+	border-bottom-right-radius: 0;
+}
+
+.form-control-has-group {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+.askeecs-question-preview {
+	border: 1px dotted #ccc;
+	padding: 5px;
 }
