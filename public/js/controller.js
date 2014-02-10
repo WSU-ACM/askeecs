@@ -2,7 +2,7 @@ var askeecsControllers = angular.module('askeecsControllers', ['ngCookies']);
 
 askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
 	function ($scope, $http) {
-		$http.get('data/questions.json').success(function(data) {
+		$http.get('/q').success(function(data) {
 			$scope.questions = data;
 		});
 	}
