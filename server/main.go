@@ -147,7 +147,13 @@ func (s *AEServer) HandleGetQuestion(params martini.Params) (int,string) {
 }
 
 func (s *AEServer) HandleLogout(session sessions.Session) {
-
+	toki := session.Get("Login")
+	if toki == nil {
+		return
+	}
+	tok := toki.(string)
+	delete(s.tokens, tok)
+	session.Delete("Login")
 }
 
 type AuthAttempt struct {
@@ -188,8 +194,8 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	return 200, "OK"
 }
 
-func (s *AEServer) AuthSession(session sessions.Session) {
-	fmt.Println(session.Get("Login"))
+func (s *AEServer) HandleMe(session sessions.Session) (int, string) {
+	return 200, "Nothing here"
 }
 
 func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
@@ -213,12 +219,15 @@ func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
 func main() {
 	s := NewServer()
 	m := martini.Classic()
+
 	store := sessions.NewCookieStore([]byte("secret123"))
     m.Use(sessions.Sessions("my_session", store))
+
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Post("/q", s.HandlePostQuestion)
 	m.Post("/login", s.HandleLogin)
 	m.Post("/register", s.HandleRegister)
-//	m.Post("/me", s.HandleMe);
+	m.Post("/logout", s.HandleLogout)
+	m.Post("/me", s.HandleMe);
 	m.Run()
 }
