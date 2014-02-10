@@ -1,11 +1,11 @@
 				<div class="askeecs-question clearfix">
-					<h3>{{question.title}}</h3>
+					<h3>{{question.Title}}</h3>
 					<div class="askeecs-media askeecs-widget askeecs-widget-box">
 						<div class="askeecs-vote-up">
 							<span class="glyphicon glyphicon-chevron-up"></span>
 						</div>
 						<div class="askeecs-votes">
-							{{question.votes}}
+							{{question.Score.Up - question.Score.Down}}
 						</div>
 						<div class="askeecs-vote-down">
 							<span class="glyphicon glyphicon-chevron-down"></span>
@@ -15,16 +15,16 @@
 						</div>
 					</div>
 					<div class="askeecs-question-details clearfix" style="">
-						{{question.body}}
+						{{question.Body}}
 						<hr>
 						<div class="askeecs-question-author pull-right">
-							<span title="{{question.createdAt | date:'medium'}}" am-time-ago="question.createdAt"></span>
+							<span title="{{question.Timestamp | date:'medium'}}" am-time-ago="question.Timestamp"></span>
 
-							<a href="#">{{question.author.username}}</a>
-							<span class="badge">{{question.author.rep}}</span>
+							<a href="#">{{question.Author}}</a>
+							<span class="badge">0</span>
 						</div>
 						<div>
-							<a href="#" ng-repeat="tag in question.tags" class="label label-info askeecs-tag">{{tag}}</a>
+							<a href="#" ng-repeat="tag in question.Tags" class="label label-info askeecs-tag">{{tag}}</a>
 						</div>
 						<ul class="askeecs-comment-list list-unstyled">
 							<li class="askeecs-comment">

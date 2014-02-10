@@ -1,4 +1,4 @@
-var askeecsApp = angular.module('askeecs', ['angularMoment', 'ngRoute', 'askeecsControllers'])
+var askeecsApp = angular.module('askeecs', ['angularMoment', 'ngRoute', 'askeecsControllers', 'ngCookies'])
 
 askeecsApp.config(['$routeProvider',
 	function($routeProvider) {
@@ -18,6 +18,10 @@ askeecsApp.config(['$routeProvider',
 			when('/register', {
 				templateUrl: 'partials/register.html',
 				controller: 'RegisterCtrl'
+			}).
+			when('/login', {
+				templateUrl: 'partials/login.html',
+				controller: 'LoginCtrl'
 			}).
 			otherwise({
 				redirectTo: '/questions'

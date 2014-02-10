@@ -1,4 +1,4 @@
-var askeecsControllers = angular.module('askeecsControllers', []);
+var askeecsControllers = angular.module('askeecsControllers', ['ngCookies']);
 
 askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
 	function ($scope, $http) {
@@ -33,8 +33,27 @@ askeecsControllers.controller('RegisterCtrl', ['$scope', '$http',
 	}
 ]);
 
-askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', '$sce',
-	function ($scope, $http, $window, $sce) {
+askeecsControllers.controller('LoginCtrl', ['$scope', '$http', '$cookies',
+	function ($scope, $http, $cookies) {
+		$scope.data = {}
+		$scope.processForm = function () {
+			console.log("GO!");
+			$scope.data.Username += '@email.wsu.edu'
+			$http({
+				method: 'POST',
+				url: '/login',
+				data: $scope.data
+			}).success(function(data) {
+				console.log(data)
+				console.log($cookies)
+			});
+			
+		}
+	}
+]);
+
+askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', '$sce', '$location',
+	function ($scope, $http, $window, $sce, $location) {
 		$scope.markdown="";
 		$scope.title="";
 		$scope.tags="";
@@ -53,7 +72,7 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 
 			var err = false;
 
-			if ($scope.markdown.length < 120)
+			if ($scope.markdown.length < 1)
 			{
 				$scope.errorMarkdown = "Your question must be 120 characters or more."
 				err = true;
@@ -80,16 +99,11 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 
 			$http({
 				method: 'POST',
-				url: '/question',
-				data: $.param({title:$scope.title, body: $scope.markdown, tags: $scope.tags.split(' ')})
+				url: '/q',
+				data: {Title:$scope.title, Body: $scope.markdown, Tags: $scope.tags.split(' ')}
 			}).success(function(data) {
-				if (!data.success) {
-					
-				}
-				else
-				{
-
-				}
+				console.log(data);
+				$location.path("/questions/"+data);	
 			});
 		}
 
@@ -98,8 +112,8 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 
 askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '$http',
 	function ($scope, $routeParams, $http) {
-		$http.get('data/questions.json').success(function(data) {
-			$scope.question = data[$routeParams.questionId];
+		$http.get('/q/' + $routeParams.questionId).success(function(data) {
+			$scope.question = data;
 		});
 	}
 ]);

@@ -9,21 +9,21 @@
 					<li class="askeecs-question clearfix" ng-repeat="question in questions">
 						<div class="askeecs-media askeecs-widget askeecs-widget-box">
 							<div class="askeecs-upper" ng-class="{'askeecs-question-answered': question.accepted}">
-								{{question.responses}}
+								{{question.Responses.length}}
 							</div>
 							<div class="askeecs-lower">
 								<span class="glyphicon glyphicon-ok"></span>
 							</div>
 						</div>
 						<div class="askeecs-question-details clearfix">
-							<h3><a href="#/questions/{{question.id}}">{{question.title}}</a></h3>
+							<h3><a href="#/questions/{{question.ID}}">{{question.Title}}</a></h3>
 							<div class="askeecs-question-author pull-right">
-								<span title="{{question.createdAt | date:'medium'}}" am-time-ago="question.createdAt"></span>
-								<a href="#">{{question.author.username}}</a>
-								<span class="badge badge-">{{question.author.rep}}</span>
+								<span title="{{question.Timestamp | date:'medium'}}" am-time-ago="question.Timestamp"></span>
+								<a href="#">{{question.Author}}</a>
+								<span class="badge badge-">0</span>
 							</div>
 							<div>
-								<a href="#" ng-repeat="tag in question.tags" class="label label-info askeecs-tag">{{tag}}</a>
+								<a href="#" ng-repeat="tag in question.Tags" class="label label-info askeecs-tag">{{tag}}</a>
 							</div>
 							
 						</div>
