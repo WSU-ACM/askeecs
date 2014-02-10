@@ -11,6 +11,10 @@ askeecsApp.config(['$routeProvider',
 				templateUrl: 'partials/question-detail.html',
 				controller: 'QuestionDetailCtrl'
 			}).
+			when('/ask', {
+				templateUrl: 'partials/question-post.html',
+				controller: 'QuestionAskCtrl'
+			}).
 			otherwise({
 				redirectTo: '/questions'
 			});
