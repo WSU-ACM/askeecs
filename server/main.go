@@ -134,6 +134,14 @@ func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, se
 	w.Write([]byte(str))
 }
 
+func (s *AEServer) HandleGetQuestions()(int,string) {
+	q := s.questions.FindWhere(bson.M{})
+	if q == nil {
+		return 404,""
+	}
+	b,_ := json.Marshal(q)
+	return 200, string(b)
+}
 func (s *AEServer) HandleGetQuestion(params martini.Params) (int,string) {
 	id := params["id"]
 	hid := bson.ObjectIdHex(id)
@@ -225,6 +233,7 @@ func main() {
 
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Post("/q", s.HandlePostQuestion)
+	m.Get("/q", s.HandleGetQuestions)
 	m.Post("/login", s.HandleLogin)
 	m.Post("/register", s.HandleRegister)
 	m.Post("/logout", s.HandleLogout)
