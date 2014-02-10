@@ -78,5 +78,18 @@ func (c *Collection) FindByID(ID bson.ObjectId) I {
 	return obj
 }
 
-func (c *Collection) FindWhere() {
+func (c *Collection) FindWhere(match bson.M) []I {
+	q := c.col.Find(match)
+	if q == nil {
+		log.Println(ErrorNullResponse)
+		return nil
+	}
+
+	var out []I
+	err := q.All(out)
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	return out
 }

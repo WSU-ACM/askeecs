@@ -66,8 +66,9 @@ func NewServer() *AEServer {
 	return s
 }
 
-func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request) {
+func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	//Verify user account or something
+	fmt.Println(session.Get("Login"))
 	var q Question
 	dec := json.NewDecoder(r.Body)
 	err := dec.Decode(&q)
@@ -120,12 +121,10 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	session.Set("Login", "1");
 
 	return 200, "OK"
-
 }
 
-func (s *AEServer) HandleMe(session sessions.Session) (int,string) {
+func (s *AEServer) AuthSession(session sessions.Session) {
 	fmt.Println(session.Get("Login"))
-	return 200, "OK"
 }
 
 func main() {
@@ -136,6 +135,6 @@ func main() {
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Post("/q", s.HandlePostQuestion)
 	m.Post("/login", s.HandleLogin);
-	m.Post("/me", s.HandleMe);
+//	m.Post("/me", s.HandleMe);
 	m.Run()
 }
