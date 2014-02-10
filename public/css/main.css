@@ -8,6 +8,14 @@ body {
 	color: #5e6a71;
 }
 
+.askeecs-tag {
+	cursor: pointer;
+}
+
+.askeecs-tag:hover {
+	color: #fff;
+}
+
 .askeecs-topic-nav {
 	padding-top: 20px;
 	padding-left: 15px;
@@ -18,6 +26,11 @@ body {
 	padding-left:0;
 }
 
+.askeecs-main-banner {
+	text-align: center;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
 .askeecs-media {
 	float: left;
 	margin-right: 20px;
@@ -95,3 +108,20 @@ border-color: rgb(76, 174, 76);
 
 
 
+.btn-group-textbox button:first-child {
+	border-bottom-left-radius: 0;
+}
+
+.btn-group-textbox button:last-child {
+	border-bottom-right-radius: 0;
+}
+
+.form-control-has-group {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+.askeecs-question-preview {
+	border: 1px dotted #ccc;
+	padding: 5px;
+}
