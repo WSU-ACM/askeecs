@@ -79,17 +79,28 @@ func (c *Collection) FindByID(ID bson.ObjectId) I {
 }
 
 func (c *Collection) FindWhere(match bson.M) []I {
+	log.Println(match)
 	q := c.col.Find(match)
 	if q == nil {
 		log.Println(ErrorNullResponse)
 		return nil
 	}
 
-	var out []I
-	err := q.All(out)
+	n,err := q.Count()
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		return nil
+	}
+	if n == 0 {
+		log.Println("Nothing matched the query...")
+		return nil
+	}
+
+	var out []I
+	i := q.Iter()
+	v := c.template.New()
+	for i.Next(v) {
+		out = append(out,v)
 	}
 	return out
 }

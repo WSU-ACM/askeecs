@@ -54,15 +54,32 @@ type Comment struct {
 	Score Score
 }
 
+type User struct {
+	_id bson.ObjectId
+	Username string
+	Password string
+	Salt string
+}
+
+func (u *User) New() I {
+	return new(User)
+}
+
+func (u *User) GetID() bson.ObjectId {
+	return u._id
+}
+
 type AEServer struct {
 	db *Database
 	questions *Collection
+	users *Collection
 }
 
 func NewServer() *AEServer {
 	s := new(AEServer)
 	s.db = NewDatabase("localhost:27017")
 	s.questions = s.db.Collection("Questions", new(Question))
+	s.users = s.db.Collection("Users", new(User))
 	return s
 }
 
@@ -114,17 +131,48 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 		fmt.Println(err)
 		return 404, "Failed"
 	}
+	users := s.users.FindWhere(bson.M{"username":a.Username})
+	if len(users) == 0 {
+		fmt.Println("User not found.")
+		return http.StatusUnauthorized, "Invalid Username or Password."
+	}
+
+	user, _ := users[0].(*User)
+
+	if user.Password != a.Password {
+		fmt.Println("Invalid password.")
+		return http.StatusUnauthorized, "Invalid Username or Password."
+	}
 
 	fmt.Println(a.Username);
 	fmt.Println(a.Password);
 
 	session.Set("Login", "1");
 
+	fmt.Println("Logged in!");
 	return 200, "OK"
 }
 
 func (s *AEServer) AuthSession(session sessions.Session) {
 	fmt.Println(session.Get("Login"))
+}
+
+func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
+	var a AuthAttempt
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(&a)
+	if err != nil {
+		fmt.Println(err)
+		return 404, "Register Failed"
+	}
+
+	user := new(User)
+	user.Password = a.Password
+	user.Username = a.Username
+	user._id = bson.NewObjectId()
+
+	s.users.Save(user)
+	return 200,"Success!"
 }
 
 func main() {
@@ -134,7 +182,8 @@ func main() {
     m.Use(sessions.Sessions("my_session", store))
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Post("/q", s.HandlePostQuestion)
-	m.Post("/login", s.HandleLogin);
+	m.Post("/login", s.HandleLogin)
+	m.Post("/register", s.HandleRegister)
 //	m.Post("/me", s.HandleMe);
 	m.Run()
 }
