@@ -1,2 +1,2 @@
 all:
-	go build -o ../serve
+	go build -o ../askeecs
