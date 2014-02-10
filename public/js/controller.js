@@ -8,6 +8,31 @@ askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
 	}
 ]);
 
+askeecsControllers.controller('RegisterCtrl', ['$scope', '$http',
+	function ($scope, $http) {
+		$scope.data = {}
+		$scope.processForm = function () {
+			console.log("GO!");
+			if($scope.data.Password != $scope.data.cpassword) {
+				console.log("Missed matched password");
+				return;
+			}
+
+			delete $scope.data.cpassword;
+			$scope.data.Username += '@email.wsu.edu'
+			console.log($scope.data);
+			$http({
+				method: 'POST',
+				url: '/register',
+				data: $scope.data
+			}).success(function(data) {
+
+			});
+			
+		}
+	}
+]);
+
 askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', '$sce',
 	function ($scope, $http, $window, $sce) {
 		$scope.markdown="";
