@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/codegangsta/martini"
 	"github.com/martini-contrib/sessions"
-	"github.com/shykes/spdy-go"
+	//"github.com/shykes/spdy-go"
 
 	"io/ioutil"
 )
