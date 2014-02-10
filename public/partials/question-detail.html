@@ -1,0 +1,49 @@
+				<div class="askeecs-question clearfix">
+					<h3>{{question.title}}</h3>
+					<div class="askeecs-media askeecs-widget askeecs-widget-box">
+						<div class="askeecs-vote-up">
+							<span class="glyphicon glyphicon-chevron-up"></span>
+						</div>
+						<div class="askeecs-votes">
+							{{question.votes}}
+						</div>
+						<div class="askeecs-vote-down">
+							<span class="glyphicon glyphicon-chevron-down"></span>
+						</div>
+						<div class="askeecs-star-question">
+							<span class="glyphicon glyphicon-star-empty"></span>
+						</div>
+					</div>
+					<div class="askeecs-question-details clearfix" style="">
+						{{question.body}}
+						<hr>
+						<div class="askeecs-question-author pull-right">
+							<span title="{{question.createdAt | date:'medium'}}" am-time-ago="question.createdAt"></span>
+
+							<a href="#">{{question.author.username}}</a>
+							<span class="badge">{{question.author.rep}}</span>
+						</div>
+						<div>
+							<a href="#" ng-repeat="tag in question.tags" class="label label-info askeecs-tag">{{tag}}</a>
+						</div>
+						<ul class="askeecs-comment-list list-unstyled">
+							<li class="askeecs-comment">
+								<p>asdfasdfasdf - <a href="#" class="">user123</a> <small>35 mins ago</small></p>
+							</li>
+							<li class="askeecs-comment">
+								<p>asdfasdfasdf - <a href="#" class="">user123</a> <small>35 mins ago</small></p>
+							</li>
+						<ul>
+						
+					</div>
+				</div>
+					<h4>Submit an Answer</h4>
+					<form role="form">
+						<div class="form-group">
+							<textarea id="message" name="message" class="form-control" placeholder="Your Message" rows="5"></textarea>
+						</div>
+						  
+						<div class="controls">
+							<button id="contact-submit" type="submit" class="btn btn-primary input-medium pull-right">Send</button>
+						</div>
+					</form>

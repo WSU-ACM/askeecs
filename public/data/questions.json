@@ -1,0 +1,37 @@
+[
+	{
+		"id":0,
+		"title": "Teach me how to fork",
+		"votes": 2,
+		"createdAt": 1392005938384,
+		"responses": 5,
+		"accepted": false, 
+		"body": "**Question**",
+		"author": {
+			"username":"tperson",
+			"rep":10
+		},
+		"tags": [
+			"cs460",
+			"fork",
+			"so hard"
+		]
+	},
+	{
+		"id":1,
+		"title": "ELI5 Pointers",
+		"votes": 8,
+		"createdAt": 1392005938384,
+		"responses": 2,
+		"accepted": true,
+		"body": "**Question**",
+		"author": {
+			"username":"joe_student",
+			"rep":2
+		},
+		"tags": [
+			"cs121",
+			"pointers"
+		]
+	}
+]

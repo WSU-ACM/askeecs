@@ -13,8 +13,6 @@ body {
 	height: 100%;
 	position:relative;
 }
-<<<<<<< HEAD
-=======
 
 .askeecs-tag {
 	cursor: pointer;
@@ -24,7 +22,6 @@ body {
 	color: #fff;
 }
 
->>>>>>> 6f046ac6b2635f7cce0c7bdcb7b1c8ffd7a3eb46
 .askeecs-topic-nav {
 	padding-top: 20px;
 	padding-left: 15px;
@@ -192,3 +189,4 @@ border-color: rgb(76, 174, 76);
 	border: 1px dotted #ccc;
 	padding: 5px;
 }
+

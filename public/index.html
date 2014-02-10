@@ -21,7 +21,13 @@
         <link rel="stylesheet" href="css/main.css">
 
         <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.min.js"></script>
+		<script src="js/vendor/moment.min.js"></script>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.js"></script>
+		<script src="js/vendor/angular/angular-moment.js"></script>
+		<script src="js/vendor/angular/angular-route.js"></script>
+
+		<script src="js/app.js"></script>
 		<script src="js/controller.js"></script>
     </head>
     <body>
@@ -80,7 +86,7 @@
 	  </div>
       <div class="row">
         <div class="col-lg-8">
-			<div class="">
+			<div class="askeecs-header">
 				<h1>WSU EECS Question & Answer</h1>
 				<p>Ask a question and get an aswer from students and staff.</p>
 				<form role="form">
@@ -92,202 +98,7 @@
 					</div>
 				</form>
 			</div>
-			<ul class="row nav nav-tabs askeecs-topic-nav">
-				<li class="active"><a href="#">Recent</a></li>
-				<li><a href="#">Unanswered</a></li>
-				<li><a href="#">Trending</a></li>
-			</ul>
-			<div class="">
-				<ul class="askeecs-topic-list" ng-controller="QuestionListCtrl">
-					<li class="askeecs-question clearfix" ng-repeat="question in questions">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper askeecs-question-answered">5
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-ok"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3><a href="#">{{question.title}}</a></h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">{{question.author}}</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="label label-info askeecs-tag">cs460</a>
-								<a class="label label-info askeecs-tag">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-					<li class="askeecs-question clearfix">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper">1
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-minus"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3><a href="#">How do I FORK CHILD like KC does?</a></h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">student123</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="label label-info askeecs-tag">cs460</a>
-								<a class="label label-info askeecs-tag">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-					<li class="askeecs-question clearfix">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper">1
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-minus"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3>How do I FORK CHILD like KC does?</h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">student123</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="btn btn-default btn-xs">cs460</a>
-								<a class="btn btn-default btn-xs">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-					<li class="askeecs-question clearfix">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper">1
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-minus"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3>How do I FORK CHILD like KC does?</h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">student123</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="btn btn-default btn-xs">cs460</a>
-								<a class="btn btn-default btn-xs">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-					<li class="askeecs-question clearfix">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper">1
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-minus"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3>How do I FORK CHILD like KC does?</h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">student123</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="btn btn-default btn-xs">cs460</a>
-								<a class="btn btn-default btn-xs">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-					<li class="askeecs-question clearfix">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper">1
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-minus"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3>How do I FORK CHILD like KC does?</h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">student123</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="btn btn-default btn-xs">cs460</a>
-								<a class="btn btn-default btn-xs">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-					<li class="askeecs-question clearfix">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper">1
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-minus"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3>How do I FORK CHILD like KC does?</h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">student123</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="btn btn-default btn-xs">cs460</a>
-								<a class="btn btn-default btn-xs">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-					<li class="askeecs-question clearfix">
-						<div class="askeecs-media askeecs-widget askeecs-widget-box">
-							<div class="askeecs-upper">1
-							</div>
-							<div class="askeecs-lower">
-								<span class="glyphicon glyphicon-minus"></span>
-							</div>
-						</div>
-						<div class="askeecs-question-details clearfix">
-							<h3>How do I FORK CHILD like KC does?</h3>
-							<div class="askeecs-question-author pull-right">
-								<span>5m ago</span>
-								<a href="#">student123</a>
-								<span class="badge">15</span>
-							</div>
-							<div>
-								<a class="btn btn-default btn-xs">cs460</a>
-								<a class="btn btn-default btn-xs">fork child</a>
-							</div>
-							
-						</div>
-					</li>
-				<ul>
-			</div>
-			<div class="center">
-				<ul class="pagination">
-				  <li><a href="#">&laquo;</a></li>
-				  <li><a href="#">1</a></li>
-				  <li><a href="#">2</a></li>
-				  <li><a href="#">3</a></li>
-				  <li><a href="#">4</a></li>
-				  <li><a href="#">5</a></li>
-				  <li><a href="#">&raquo;</a></li>
-				</ul>
-			</div>
+			<div ng-view></div>
         </div>
         <div class="col-lg-4 askeecs-sidebar">
 			<div class="askeecs-ask-btn-center">
