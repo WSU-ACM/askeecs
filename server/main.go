@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/codegangsta/martini"
+	"github.com/martini-contrib/sessions"
 	"labix.org/v2/mgo/bson"
 	"encoding/json"
 	//"encoding/hex"
@@ -89,10 +90,43 @@ func (s *AEServer) HandleGetQuestion(params martini.Params) (int,string) {
 	return 200, string(b)
 }
 
+type AuthAttempt struct {
+	Username string
+	Password string
+}
+
+
+func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session sessions.Session) (int,string) {
+	var a AuthAttempt
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(&a)
+	if err != nil {
+		fmt.Println(err)
+		return 404, "Failed"
+	}
+
+	fmt.Println(a.Username);
+	fmt.Println(a.Password);
+
+	session.Set("Login", "1");
+
+	return 200, "OK"
+
+}
+
+func (s *AEServer) HandleMe(session sessions.Session) (int,string) {
+	fmt.Println(session.Get("Login"))
+	return 200, "OK"
+}
+
 func main() {
 	s := NewServer()
 	m := martini.Classic()
+	store := sessions.NewCookieStore([]byte("secret123"))
+    m.Use(sessions.Sessions("my_session", store))
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Post("/q", s.HandlePostQuestion)
+	m.Post("/login", s.HandleLogin);
+	m.Post("/me", s.HandleMe);
 	m.Run()
 }
