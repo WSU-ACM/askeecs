@@ -10,6 +10,9 @@ import (
 	"encoding/json"
 	"encoding/hex"
 	"log"
+	"crypto/rand"
+	"bytes"
+	"io"
 )
 
 type Score struct {
@@ -59,6 +62,7 @@ type User struct {
 	Username string
 	Password string
 	Salt string
+	login time.Time
 }
 
 func (u *User) New() I {
@@ -73,6 +77,9 @@ type AEServer struct {
 	db *Database
 	questions *Collection
 	users *Collection
+
+	tokens map[string]*User
+	salts map[string]string
 }
 
 func NewServer() *AEServer {
@@ -80,12 +87,33 @@ func NewServer() *AEServer {
 	s.db = NewDatabase("localhost:27017")
 	s.questions = s.db.Collection("Questions", new(Question))
 	s.users = s.db.Collection("Users", new(User))
+	s.tokens = make(map[string]*User)
 	return s
+}
+
+func (s *AEServer) GetSessionToken() string {
+	buf := new(bytes.Buffer)
+	io.CopyN(buf, rand.Reader, 32)
+	return hex.EncodeToString(buf.Bytes())
 }
 
 func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, session sessions.Session) {
 	//Verify user account or something
-	fmt.Println(session.Get("Login"))
+	login := session.Get("Login")
+	if login == nil {
+		log.Printf("Not logged in!!")
+		w.WriteHeader(404)
+		return
+	}
+	tok := login.(string)
+	user, ok := s.tokens[tok]
+	if !ok {
+		log.Printf("Invalid cookie!")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+
 	var q Question
 	dec := json.NewDecoder(r.Body)
 	err := dec.Decode(&q)
@@ -95,6 +123,7 @@ func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, se
 		return
 	}
 	q.ID = bson.NewObjectId()
+	q.Author = user.Username
 	fmt.Println(q.ID)
 	err = s.questions.Save(&q)
 	if err != nil {
@@ -115,6 +144,10 @@ func (s *AEServer) HandleGetQuestion(params martini.Params) (int,string) {
 	}
 	b,_ := json.Marshal(q)
 	return 200, string(b)
+}
+
+func (s *AEServer) HandleLogout(session sessions.Session) {
+
 }
 
 type AuthAttempt struct {
@@ -144,10 +177,12 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 		return http.StatusUnauthorized, "Invalid Username or Password."
 	}
 
-	fmt.Println(a.Username);
-	fmt.Println(a.Password);
+	tok := s.GetSessionToken()
+	user.login = time.Now()
+	for _,ok := s.tokens[tok]; ok; tok = s.GetSessionToken() {}
+	s.tokens[tok] = user
 
-	session.Set("Login", "1");
+	session.Set("Login", tok);
 
 	fmt.Println("Logged in!");
 	return 200, "OK"
