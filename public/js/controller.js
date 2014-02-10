@@ -8,8 +8,8 @@ askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
 	}
 ]);
 
-askeecsControllers.controller('RegisterCtrl', ['$scope', '$http',
-	function ($scope, $http) {
+askeecsControllers.controller('RegisterCtrl', ['$scope', '$http', '$location',
+	function ($scope, $http, $location) {
 		$scope.data = {}
 		$scope.processForm = function () {
 			console.log("GO!");
@@ -19,35 +19,26 @@ askeecsControllers.controller('RegisterCtrl', ['$scope', '$http',
 			}
 
 			delete $scope.data.cpassword;
-			$scope.data.Username += '@email.wsu.edu'
 			console.log($scope.data);
 			$http({
 				method: 'POST',
 				url: '/register',
 				data: $scope.data
 			}).success(function(data) {
-
+				$location.path("/login");	
 			});
 			
 		}
 	}
 ]);
 
-askeecsControllers.controller('LoginCtrl', ['$scope', '$http', '$cookies',
-	function ($scope, $http, $cookies) {
-		$scope.data = {}
+askeecsControllers.controller('LoginCtrl', ['$rootScope', '$scope', '$http', '$cookies', '$location', 'AuthService',
+	function ($rootScope, $scope, $http, $cookies, $location, AuthService) {
+		$scope.credentials = { "Username": "", "Password": "" }
 		$scope.processForm = function () {
-			console.log("GO!");
-			$scope.data.Username += '@email.wsu.edu'
-			$http({
-				method: 'POST',
-				url: '/login',
-				data: $scope.data
-			}).success(function(data) {
-				console.log(data)
-				console.log($cookies)
+			AuthService.login($scope.credentials).success(function () {
+				$location.path('/questions');
 			});
-			
 		}
 	}
 ]);
