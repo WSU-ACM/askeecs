@@ -13,6 +13,7 @@ import (
 	"crypto/rand"
 	"bytes"
 	"io"
+	"io/ioutil"
 )
 
 type Score struct {
@@ -228,8 +229,13 @@ func main() {
 	s := NewServer()
 	m := martini.Classic()
 
-	store := sessions.NewCookieStore([]byte("secret123"))
-    m.Use(sessions.Sessions("my_session", store))
+
+	secret,err := ioutil.ReadFile(".secret")
+	if err != nil {
+		panic(err)
+	}
+	store := sessions.NewCookieStore(secret)
+    m.Use(sessions.Sessions("ask_eecs_auth_session", store))
 
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Post("/q", s.HandlePostQuestion)
