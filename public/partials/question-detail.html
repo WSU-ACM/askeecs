@@ -27,7 +27,7 @@
 							<a href="#" ng-repeat="tag in question.Tags" class="label label-info askeecs-tag">{{tag}}</a>
 						</div>
 						<ul class="askeecs-comment-list list-unstyled">
-							<li class="askeecs-comment" ng-repeat="comment in question.comments">
+							<li class="askeecs-comment" ng-repeat="comment in question.Comments">
 							<p><a href="#" ><span class="glyphicon glyphicon-arrow-up"></span></a> {{comment.Body}} – <a href="#" class="">{{comment.Author}}</a> <small><span title="{{question.Timestamp | date:'medium'}}" am-time-ago="question.Timestamp"></span></small></p>
 							</li>
 						</ul>
@@ -43,6 +43,7 @@
 											<button type="submit" class="btn btn-default btn-sm">Add Comment</button>
 										</div>
 									</div>
+									<small ng-bind="comment.Body.length | commentremark"></small>
 								</div>
 							</form>
 						</div>

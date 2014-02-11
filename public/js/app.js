@@ -161,3 +161,14 @@ askeecsApp.directive('askeecsLogout', function (AuthService) {
 	}
 })
 
+askeecsApp.filter('commentremark', function () {
+	return function(input) {
+		if(input === 0)
+			return "at least enter 15 characters";
+		else if(input < 15)
+			return "" + 15 - input + " more to go..."
+		else
+			return 600 - input + " characters left"
+		
+	}
+});
