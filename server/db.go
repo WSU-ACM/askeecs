@@ -58,6 +58,12 @@ func (c *Collection) Save(doc I) error {
 	return err
 }
 
+func (c *Collection) Update(doc I) error {
+	log.Println("Updating Document.")
+	err := c.col.UpdateId(doc.GetID(), doc)
+	return err
+}
+
 func (c *Collection) FindByID(ID bson.ObjectId) I {
 	q := c.col.FindId(ID)
 	if q == nil {

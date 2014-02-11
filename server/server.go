@@ -176,7 +176,7 @@ func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.
 		return http.StatusForbidden, "{\"Message\":\"No such question!\"}"
 	}
 	question.Responses = append(question.Responses, reply)
-	s.questions.Save(question)
+	s.questions.Update(question)
 
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
