@@ -49,6 +49,7 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 		$scope.title="";
 		$scope.tags="";
 		$scope.md2Html = function() {
+			var src = $scope.markdown || ""
 			$scope.html = $window.marked($scope.markdown);
 			$scope.htmlSafe = $sce.trustAsHtml($scope.html);
 		}
@@ -63,9 +64,9 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 
 			var err = false;
 
-			if ($scope.markdown.length < 1)
+			if ($scope.markdown.length < 50)
 			{
-				$scope.errorMarkdown = "Your question must be 120 characters or more."
+				$scope.errorMarkdown = "Your question must be 50 characters or more."
 				err = true;
 			}
 
@@ -80,9 +81,6 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 				$scope.errorTags = "You must have at least one tag."
 				err = true;
 			}
-
-
-
 
 			if (err) {
 				return;
@@ -101,10 +99,69 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 	}
 ]);
 
-askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '$http',
-	function ($scope, $routeParams, $http) {
+askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '$http', '$window', '$sce',
+	function ($scope, $routeParams, $http, $window, $sce) {
+		$scope.comment = { "Body" : "" }
+		$scope.response = { "Body" : "" }
+
 		$http.get('/q/' + $routeParams.questionId).success(function(data) {
 			$scope.question = data;
 		});
+
+		$scope.markdown="";
+		$scope.md2Html = function() {
+			var src = $scope.response.Body || ""
+			$scope.html = $window.marked(src);
+			$scope.htmlSafe = $sce.trustAsHtml($scope.html);
+		}
+
+		$scope.processComment = function () {
+			delete $scope.errorComment;
+
+			var err = false;
+
+			if ( $scope.comment.Body.length < 15 )
+			{
+				$scope.errorComment = "Your comment must be at least 15 characters"
+				err = true;
+			}
+
+			if (err) return;
+
+			$http({
+				method: 'post',
+				url: '/q/' + $scope.question.ID + '/comment/',
+				data: $scope.response
+			}).success(function(data) {
+				delete $scope.scomment;
+				$scope.question.comments.push(data);
+			});
+		}
+
+		$scope.processForm = function () {
+			console.log($scope.response.Body);
+			delete $scope.errorMarkdown;
+
+			var err = false;
+
+			if ($scope.response.Body.length < 50)
+			{
+				$scope.errorMarkdown = "Your response must be 50 characters or more."
+				err = true;
+			}
+
+
+			if (err) {
+				return;
+			}
+
+			$http({
+				method: 'post',
+				url: '/q/' + $scope.question.ID + '/response/',
+				data: $scope.response
+			}).success(function(data) {
+				$scope.question.responses.push(data);
+			});
+		}
 	}
 ]);
