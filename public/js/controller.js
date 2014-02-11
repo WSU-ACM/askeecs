@@ -106,6 +106,7 @@ askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '
 
 		$http.get('/q/' + $routeParams.questionId).success(function(data) {
 			$scope.question = data;
+			console.log(data)
 		});
 
 		$scope.markdown="";
@@ -134,7 +135,7 @@ askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '
 				data: $scope.response
 			}).success(function(data) {
 				delete $scope.scomment;
-				$scope.question.comments.push(data);
+				$scope.question.Comments.push(data);
 			});
 		}
 
@@ -160,7 +161,7 @@ askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '
 				url: '/q/' + $scope.question.ID + '/response/',
 				data: $scope.response
 			}).success(function(data) {
-				$scope.question.responses.push(data);
+				$scope.question.Responses.push(data);
 			});
 		}
 	}
