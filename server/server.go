@@ -214,6 +214,37 @@ func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.
 	return 200, buf.String()
 }
 
+func (s *AEServer) HandleResponseComment(sess sessions.Session, params martini.Params, r *http.Request) (int, string) {
+	id := bson.ObjectIdHex(params["id"])
+	user := s.GetAuthedUser(sess)
+	if user == nil {
+		return 401, "{\"Message\":\"Not authorized to reply!\"}"
+	}
+
+	comment := new(Comment)
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(comment)
+	if err != nil {
+		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+	}
+
+	comment.Author = user.Username
+	comment.Timestamp = time.Now()
+	comment.ID = bson.NewObjectId()
+
+	question,ok := s.questions.FindByID(id).(*Question)
+	if !ok {
+		return http.StatusForbidden, "{\"Message\":\"No such question!\"}"
+	}
+	resp_id := params["resp"]
+	resp := question.GetResponse(bson.ObjectId(resp_id))
+	resp.AddComment(comment)
+
+	s.questions.Update(question)
+
+	return 200, string(comment.JsonBytes())
+}
+
 func (s *AEServer) HandleMe(session sessions.Session) (int, string) {
 	return 200, "Nothing here"
 }

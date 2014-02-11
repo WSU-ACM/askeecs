@@ -35,6 +35,15 @@ func (q *Question) GetID() bson.ObjectId {
 	return q.ID
 }
 
+func (q *Question) GetResponse(id bson.ObjectId) *Response {
+	for _,v := range q.Responses {
+		if v.ID == id {
+			return v
+		}
+	}
+	return nil
+}
+
 func (q *Question) HasVoteBy(user bson.ObjectId) int {
 	for _,v := range q.Upvotes {
 		if v == user {
@@ -94,6 +103,10 @@ type Response struct {
 	//Score Score
 	Body string
 	Comments []*Comment
+}
+
+func (r *Response) AddComment(c *Comment) {
+	r.Comments = append(r.Comments, c)
 }
 
 type Comment struct {
