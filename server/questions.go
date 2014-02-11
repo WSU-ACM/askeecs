@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"bytes"
 	"time"
+	"io"
 )
 
 type Question struct {
@@ -18,6 +19,16 @@ type Question struct {
 	Body string
 	Responses []*Response
 	Comments []*Comment
+}
+
+func QuestionFromJson(r io.Reader) *Question {
+	q := new(Question)
+	dec := json.NewDecoder(r)
+	err := dec.Decode(q)
+	if err != nil {
+		return nil
+	}
+	return q
 }
 
 func (q *Question) JsonBytes() []byte {
@@ -105,6 +116,16 @@ type Response struct {
 	Comments []*Comment
 }
 
+func ResponseFromJson(r io.Reader) *Response {
+	resp := new(Response)
+	dec := json.NewDecoder(r)
+	err := dec.Decode(resp)
+	if err != nil {
+		return nil
+	}
+	return resp
+}
+
 func (r *Response) AddComment(c *Comment) {
 	r.Comments = append(r.Comments, c)
 }
@@ -115,6 +136,16 @@ type Comment struct {
 	Author string
 	Body string
 	//Score Score
+}
+
+func CommentFromJson(r io.Reader) *Comment {
+	comment := new(Comment)
+	dec := json.NewDecoder(r)
+	err := dec.Decode(comment)
+	if err != nil {
+		return nil
+	}
+	return comment
 }
 
 func (c *Comment) JsonBytes() []byte {

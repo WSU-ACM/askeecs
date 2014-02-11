@@ -33,10 +33,16 @@ func NewServer() *AEServer {
 	return s
 }
 
-func (s *AEServer) GetSessionToken() string {
+func genRandString() string {
 	buf := new(bytes.Buffer)
 	io.CopyN(buf, rand.Reader, 32)
 	return hex.EncodeToString(buf.Bytes())
+}
+
+func (s *AEServer) GetSessionToken() string {
+	tok := genRandString()
+	for _,ok := s.tokens[tok]; ok; tok = genRandString() {}
+	return tok
 }
 
 func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, session sessions.Session) {
@@ -54,7 +60,6 @@ func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, se
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 
 	var q Question
 	dec := json.NewDecoder(r.Body)
@@ -108,20 +113,13 @@ func (s *AEServer) HandleLogout(session sessions.Session) {
 	session.Delete("Login")
 }
 
-type AuthAttempt struct {
-	Username string
-	Password string
-}
-
 func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session sessions.Session) (int,string) {
-	var a AuthAttempt
-	dec := json.NewDecoder(r.Body)
-	err := dec.Decode(&a)
-	if err != nil {
-		fmt.Println(err)
+	a := AuthFromJson(r.Body)
+	if a == nil {
 		time.Sleep(time.Second)
 		return 404, "{\"Message\":\"Login Failed\"}"
 	}
+
 	users := s.users.FindWhere(bson.M{"username":a.Username})
 	if len(users) == 0 {
 		fmt.Println("User not found.")
@@ -130,28 +128,19 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	}
 
 	user, _ := users[0].(*User)
-
-	fmt.Println(user.Password)
 	if user.Password != a.Password {
 		fmt.Println("Invalid password.")
 		time.Sleep(time.Second)
 		return http.StatusUnauthorized, "{\"Message\":\"Invalid Username or Password.\"}"
 	}
 
-	tok := s.GetSessionToken()
 	user.login = time.Now()
-	for _,ok := s.tokens[tok]; ok; tok = s.GetSessionToken() {}
+	tok := s.GetSessionToken()
 	s.tokens[tok] = user
-
 	session.Set("Login", tok)
+
 	fmt.Println("Logged in!")
-
-	ucpy := *user
-	buf := new(bytes.Buffer)
-	enc := json.NewEncoder(buf)
-	enc.Encode(ucpy)
-
-	return 200, buf.String()
+	return 200, string(user.JsonBytes())
 }
 
 func (s *AEServer) HandleQuestionComment(sess sessions.Session, params martini.Params, r *http.Request) (int, string) {
@@ -161,10 +150,8 @@ func (s *AEServer) HandleQuestionComment(sess sessions.Session, params martini.P
 		return 401, "{\"Message\":\"Not authorized to reply!\"}"
 	}
 
-	comment := new(Comment)
-	dec := json.NewDecoder(r.Body)
-	err := dec.Decode(comment)
-	if err != nil {
+	comment := CommentFromJson(r.Body)
+	if comment == nil {
 		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
 	}
 
@@ -189,10 +176,9 @@ func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.
 	if user == nil {
 		return 401, "{\"Message\":\"Not authorized to reply!\"}"
 	}
-	reply := new(Response)
-	dec := json.NewDecoder(r.Body)
-	err := dec.Decode(reply)
-	if err != nil {
+
+	reply := ResponseFromJson(r.Body)
+	if reply == nil {
 		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
 	}
 
@@ -221,13 +207,10 @@ func (s *AEServer) HandleResponseComment(sess sessions.Session, params martini.P
 		return 401, "{\"Message\":\"Not authorized to reply!\"}"
 	}
 
-	comment := new(Comment)
-	dec := json.NewDecoder(r.Body)
-	err := dec.Decode(comment)
-	if err != nil {
+	comment := CommentFromJson(r.Body)
+	if comment == nil {
 		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
 	}
-
 	comment.Author = user.Username
 	comment.Timestamp = time.Now()
 	comment.ID = bson.NewObjectId()
