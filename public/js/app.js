@@ -53,7 +53,7 @@ askeecsApp.config(function($httpProvider) {
 		var error   = function (res) {
 			if(res.status === 401) { // HTTP NotAuthorized
 				SessionService.unset('authenticated')
-				FlashService.show(res.data.flash);
+				FlashService.show(res.data.Message);
 				$location.path("/login");
 				return $q.reject(res)
 			} else {
@@ -101,7 +101,7 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 		}
 
 		var loginError = function (res) {
-			FlashService.show(res.flash);
+			FlashService.show(res.Message);
 		}
 
 		return {
