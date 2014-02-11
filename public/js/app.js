@@ -29,11 +29,14 @@ askeecsApp.config(['$routeProvider',
 	}
 ]);
 
-askeecsApp.run(function($rootScope, $location, AuthService, FlashService) {
+askeecsApp.run(function($rootScope, $location, AuthService, FlashService, SessionService) {
 	var routesThatRequireAuth = ['/ask'];
 
+	$rootScope.authenticated = SessionService.get('authenticated');
+	$rootScope.user = SessionService.get('user');
+
 	$rootScope.$on('$routeChangeStart', function (event, next, current) {
-		FlashService.clear();
+		FlashService.clear()
 		if(_(routesThatRequireAuth).contains($location.path()) && !AuthService.isLoggedIn())
 		{
 			FlashService.show("Please login to continue");
@@ -110,7 +113,7 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 				return login;
 			},
 			logout: function () {
-				var logout =  $http.get("/logout");
+				var logout =  $http.post("/logout");
 				logout.success(uncacheSession);
 				return logout;
 			},
@@ -132,10 +135,12 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 askeecsApp.factory("FlashService", function ($rootScope) {
 	return {
 		show: function (msg) {
+			$rootScope.flashn = 1;
 			$rootScope.flash = msg
 		},
 		clear: function () {
-			$rootScope.flash = ""
+			if ( $rootScope.flashn-- == 0 )
+				$rootScope.flash = ""
 		}
 	}
 });

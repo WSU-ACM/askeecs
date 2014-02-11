@@ -59,9 +59,9 @@
             <li><a href="#/login">Login</a></li>
 			</ul>
 		
-          <ul class="nav navbar-nav navbar-right" ng-show="authenticated" style="display:none">
+          <ul class="nav navbar-nav navbar-right ng-hide" ng-show="authenticated">
 			  <li class="clearfix"><a href="#/profile">{{current_user.Username}}</a></li>
-            <li><a askeecs-logout>Logout</a></li>
+            <li><a href="#" askeecs-logout>Logout</a></li>
 			</ul>
         </div><!--/.navbar-collapse -->
       </div>
@@ -90,7 +90,7 @@
 					</div>
 				</form>
 			</div>
-			<div class="alert alert-warning" ng-show="flash">{{flash}}</div>
+			<div class="alert alert-warning ng-hide" ng-show="flash">{{flash}}</div>
 			<div ng-view></div>
         </div>
         <div class="col-lg-4 askeecs-sidebar">
