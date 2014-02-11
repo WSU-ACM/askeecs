@@ -2,13 +2,13 @@
 					<h3>{{question.Title}}</h3>
 					<div class="askeecs-media askeecs-widget askeecs-widget-box">
 						<div class="askeecs-vote-up">
-							<span class="glyphicon glyphicon-chevron-up"></span>
+							<span class="glyphicon glyphicon-chevron-up" ng-click="voteUp()"></span>
 						</div>
 						<div class="askeecs-votes">
-							{{question.Score.Up - question.Score.Down}}
+							{{question.Upvotes.length - question.Downvotes.length}}
 						</div>
 						<div class="askeecs-vote-down">
-							<span class="glyphicon glyphicon-chevron-down"></span>
+							<span class="glyphicon glyphicon-chevron-down" ng-click="voteDown()"></span>
 						</div>
 						<div class="askeecs-star-question">
 							<span class="glyphicon glyphicon-star-empty"></span>

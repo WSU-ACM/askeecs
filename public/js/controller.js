@@ -109,6 +109,26 @@ askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '
 			console.log(data)
 		});
 
+		$scope.voteUp = function () {
+			$http({
+				method: 'GET',
+				url: '/q/' + $scope.question.ID + '/vote/up',
+				data: {}
+			}).success(function(data) {
+				$scope.question.Upvotes = data.Upvotes
+			});
+		}
+
+		$scope.voteDown = function () {
+			$http({
+				method: 'GET',
+				url: '/q/' + $scope.question.ID + '/vote/down',
+				data: {}
+			}).success(function(data) {
+				$scope.question.Downvotes = data.Downvotes
+			});
+		}
+
 		$scope.markdown="";
 		$scope.md2Html = function() {
 			var src = $scope.response.Body || ""
