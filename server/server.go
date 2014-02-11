@@ -113,7 +113,6 @@ type AuthAttempt struct {
 	Password string
 }
 
-
 func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session sessions.Session) (int,string) {
 	var a AuthAttempt
 	dec := json.NewDecoder(r.Body)
@@ -132,6 +131,7 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 
 	user, _ := users[0].(*User)
 
+	fmt.Println(user.Password)
 	if user.Password != a.Password {
 		fmt.Println("Invalid password.")
 		time.Sleep(time.Second)
@@ -144,9 +144,15 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	s.tokens[tok] = user
 
 	session.Set("Login", tok);
-
 	fmt.Println("Logged in!");
-	return 200, ""
+
+	ucpy := *user
+	ucpy.Password = ""
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.Encode(ucpy)
+
+	return 200, buf.String()
 }
 
 func (s *AEServer) HandleMe(session sessions.Session) (int, string) {

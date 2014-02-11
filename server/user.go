@@ -8,8 +8,8 @@ import (
 type User struct {
 	_id bson.ObjectId
 	Username string
-	Password string
-	Salt string
+	Password string `json:"-"`
+	Salt string `json:"-"`
 	login time.Time
 }
 
