@@ -100,7 +100,7 @@ type Comment struct {
 	ID bson.ObjectId
 	Timestamp time.Time
 	Author string
-	Content string
+	Body string
 	//Score Score
 }
 
