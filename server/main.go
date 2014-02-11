@@ -19,10 +19,12 @@ func main() {
 	store := sessions.NewCookieStore(secret)
 	m.Use(sessions.Sessions("ask_eecs_auth_session", store))
 
+	m.Get("/q", s.HandleGetQuestions)
+	m.Post("/q", s.HandlePostQuestion)
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Get("/q/:id/vote/:opt", s.HandleVote)
-	m.Post("/q", s.HandlePostQuestion)
-	m.Get("/q", s.HandleGetQuestions)
+	m.Post("/q/:id/response", s.HandleQuestionResponse)
+
 	m.Post("/login", s.HandleLogin)
 	m.Post("/register", s.HandleRegister)
 	m.Post("/logout", s.HandleLogout)

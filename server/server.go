@@ -143,14 +143,44 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	for _,ok := s.tokens[tok]; ok; tok = s.GetSessionToken() {}
 	s.tokens[tok] = user
 
-	session.Set("Login", tok);
-	fmt.Println("Logged in!");
+	session.Set("Login", tok)
+	fmt.Println("Logged in!")
 
 	ucpy := *user
-	ucpy.Password = ""
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
 	enc.Encode(ucpy)
+
+	return 200, buf.String()
+}
+
+func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.Params, r *http.Request) (int, string) {
+	id := bson.ObjectIdHex(params["id"])
+	user := s.GetAuthedUser(sess)
+	if user == nil {
+		return 401, "{\"Message\":\"Not authorized to reply!\"}"
+	}
+	reply := new(Response)
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(reply)
+	if err != nil {
+		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+	}
+
+	reply.ID = bson.NewObjectId()
+	reply.Timestamp = time.Now()
+	reply.Author = user.Username
+
+	question,ok := s.questions.FindByID(id).(*Question)
+	if !ok {
+		return http.StatusForbidden, "{\"Message\":\"No such question!\"}"
+	}
+	question.Responses = append(question.Responses, reply)
+	s.questions.Save(question)
+
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.Encode(reply)
 
 	return 200, buf.String()
 }
@@ -206,7 +236,7 @@ func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
 	user.Password = a.Password
 	user.Username = a.Username
 	user._id = bson.NewObjectId()
-	
+
 	s.users.Save(user)
 	return 200,"Success!"
 }
