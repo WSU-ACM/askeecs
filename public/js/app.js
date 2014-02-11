@@ -91,13 +91,14 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 			SessionService.set('user', user);
 			$rootScope.authenticated = true;
 			$rootScope.user = user;
+
 		}
 
 		var uncacheSession = function () {
 			SessionService.unset('authenticated');
 			SessionService.unset('user');
 			$rootScope.authenticated = false;
-			$rootScope.current_user = {};
+			$rootScope.user = {};
 		}
 
 		var loginError = function (res) {
