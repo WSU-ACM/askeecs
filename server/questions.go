@@ -2,6 +2,8 @@ package main
 
 import (
 	"labix.org/v2/mgo/bson"
+	"encoding/json"
+	"bytes"
 	"time"
 )
 
@@ -10,12 +12,19 @@ type Question struct {
 	Title string
 	Author string
 	Tags []string
-	Upvotes []string
-	Downvotes []string
+	Upvotes []bson.ObjectId
+	Downvotes []bson.ObjectId
 	Timestamp time.Time
 	Body string
 	Responses []*Response
 	Comments []*Comment
+}
+
+func (q *Question) JsonBytes() []byte {
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.Encode(q)
+	return buf.Bytes()
 }
 
 func (q *Question) New() I {
@@ -26,7 +35,7 @@ func (q *Question) GetID() bson.ObjectId {
 	return q.ID
 }
 
-func (q *Question) HasVoteBy(user string) int {
+func (q *Question) HasVoteBy(user bson.ObjectId) int {
 	for _,v := range q.Upvotes {
 		if v == user {
 			return 1
@@ -40,7 +49,7 @@ func (q *Question) HasVoteBy(user string) int {
 	return 0
 }
 
-func (q *Question) Upvote(user string) bool {
+func (q *Question) Upvote(user bson.ObjectId) bool {
 	switch q.HasVoteBy(user) {
 	case 0:
 		q.Upvotes = append(q.Upvotes, user)
@@ -59,7 +68,7 @@ func (q *Question) Upvote(user string) bool {
 	return false
 }
 
-func (q *Question) Downvote(user string) bool {
+func (q *Question) Downvote(user bson.ObjectId) bool {
 	switch q.HasVoteBy(user) {
 	case 0:
 		q.Downvotes = append(q.Downvotes, user)
@@ -93,4 +102,11 @@ type Comment struct {
 	Author string
 	Content string
 	//Score Score
+}
+
+func (c *Comment) JsonBytes() []byte {
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.Encode(c)
+	return buf.Bytes()
 }

@@ -154,6 +154,35 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	return 200, buf.String()
 }
 
+func (s *AEServer) HandleQuestionComment(sess sessions.Session, params martini.Params, r *http.Request) (int, string) {
+	id := bson.ObjectIdHex(params["id"])
+	user := s.GetAuthedUser(sess)
+	if user == nil {
+		return 401, "{\"Message\":\"Not authorized to reply!\"}"
+	}
+
+	comment := new(Comment)
+	dec := json.NewDecoder(r.Body)
+	err := dec.Decode(comment)
+	if err != nil {
+		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+	}
+
+	comment.Author = user.Username
+	comment.Timestamp = time.Now()
+	comment.ID = bson.NewObjectId()
+
+	question,ok := s.questions.FindByID(id).(*Question)
+	if !ok {
+		return http.StatusForbidden, "{\"Message\":\"No such question!\"}"
+	}
+	question.Comments = append(question.Comments, comment)
+	s.questions.Update(question)
+
+	return 200, string(comment.JsonBytes())
+
+}
+
 func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.Params, r *http.Request) (int, string) {
 	id := bson.ObjectIdHex(params["id"])
 	user := s.GetAuthedUser(sess)
@@ -189,22 +218,33 @@ func (s *AEServer) HandleMe(session sessions.Session) (int, string) {
 	return 200, "Nothing here"
 }
 
-func (s *AEServer) HandleVote(params martini.Params, session sessions.Session, r *http.Request) int {
+func (s *AEServer) HandleVote(params martini.Params, session sessions.Session, r *http.Request) (int,string) {
 	opt := params["opt"]
 	if opt != "up" && opt != "down" {
-		return 404
+		return http.StatusMethodNotAllowed,"{\"Message\":\"Invalid vote type\"}"
 	}
 	user := s.GetAuthedUser(session)
 	if user == nil {
-		return http.StatusUnauthorized
+		return http.StatusUnauthorized, "{\"Message\":\"Not logged in!\"}"
+
 	}
 	q := bson.ObjectIdHex(params["id"])
-	question := s.questions.FindByID(q)
-	if question == nil {
-		return 404
+	question,ok := s.questions.FindByID(q).(*Question)
+	if question == nil || !ok {
+		return 404, "{\"Message\":\"No such question!\"}"
+	}
+	switch opt {
+		case "up":
+			if question.Upvote(user._id) {
+				s.questions.Update(question)
+			}
+		case "down":
+			if question.Downvote(user._id) {
+				s.questions.Update(question)
+			}
 	}
 
-	return 200
+	return 200, string(question.JsonBytes())
 }
 
 func (s *AEServer) GetAuthedUser(sess sessions.Session) *User {

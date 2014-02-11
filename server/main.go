@@ -24,6 +24,7 @@ func main() {
 	m.Get("/q/:id", s.HandleGetQuestion)
 	m.Get("/q/:id/vote/:opt", s.HandleVote)
 	m.Post("/q/:id/response", s.HandleQuestionResponse)
+	m.Post("/q/:id/comment", s.HandleQuestionComment)
 
 	m.Post("/login", s.HandleLogin)
 	m.Post("/register", s.HandleRegister)
