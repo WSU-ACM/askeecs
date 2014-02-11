@@ -170,6 +170,27 @@ func (s *AEServer) HandleQuestionComment(sess sessions.Session, params martini.P
 
 }
 
+func (s *AEServer) HandleEditQuestion(sess sessions.Session, params martini.Params, r *http.Request) (int, string) {
+	id := bson.ObjectIdHex(params["id"])
+	user := s.GetAuthedUser(sess)
+	if user == nil {
+		return 401, "{\"Message\":\"Not authorized to edit!\"}"
+	}
+
+	q := QuestionFromJson(r.Body)
+	if q == nil {
+		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+	}
+
+	original := s.questions.FindByID(id).(*Question)
+	original.Body = q.Body
+	original.Title = q.Title
+	original.LastEdit = time.Now()
+
+	s.questions.Update(original)
+	return 200, string(original.JsonBytes())
+}
+
 func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.Params, r *http.Request) (int, string) {
 	id := bson.ObjectIdHex(params["id"])
 	user := s.GetAuthedUser(sess)
@@ -240,8 +261,9 @@ func (s *AEServer) HandleVote(params martini.Params, session sessions.Session, r
 	user := s.GetAuthedUser(session)
 	if user == nil {
 		return http.StatusUnauthorized, "{\"Message\":\"Not logged in!\"}"
-
 	}
+
+	fmt.Println(user)
 	q := bson.ObjectIdHex(params["id"])
 	question,ok := s.questions.FindByID(q).(*Question)
 	if question == nil || !ok {
@@ -249,11 +271,11 @@ func (s *AEServer) HandleVote(params martini.Params, session sessions.Session, r
 	}
 	switch opt {
 		case "up":
-			if question.Upvote(user._id) {
+			if question.Upvote(user.ID) {
 				s.questions.Update(question)
 			}
 		case "down":
-			if question.Downvote(user._id) {
+			if question.Downvote(user.ID) {
 				s.questions.Update(question)
 			}
 	}
@@ -286,11 +308,16 @@ func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
 		return 404, "Register Failed"
 	}
 
+	fmt.Println("Registering new user!")
+	fmt.Println(a)
 	user := new(User)
 	user.Password = a.Password
 	user.Username = a.Username
-	user._id = bson.NewObjectId()
+	user.ID = bson.NewObjectId()
 
-	s.users.Save(user)
+	err = s.users.Save(user)
+	if err != nil {
+		fmt.Println(err)
+	}
 	return 200,"Success!"
 }
