@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/codegangsta/martini"
 	"github.com/martini-contrib/sessions"
-	"github.com/shykes/spdy-go"
 
 	"io/ioutil"
 )
@@ -29,5 +28,4 @@ func main() {
 	m.Post("/logout", s.HandleLogout)
 	m.Post("/me", s.HandleMe);
 	m.Run()
-	//spdy.ListenAndServeTCP(":3000", m)
 }
