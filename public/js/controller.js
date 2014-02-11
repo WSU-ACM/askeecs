@@ -32,8 +32,8 @@ askeecsControllers.controller('RegisterCtrl', ['$scope', '$http', '$location',
 	}
 ]);
 
-askeecsControllers.controller('LoginCtrl', ['$rootScope', '$scope', '$http', '$cookies', '$location', 'AuthService',
-	function ($rootScope, $scope, $http, $cookies, $location, AuthService) {
+askeecsControllers.controller('LoginCtrl', ['$scope', '$http', '$cookies', '$location', 'AuthService',
+	function ($scope, $http, $cookies, $location, AuthService) {
 		$scope.credentials = { "Username": "", "Password": "" }
 		$scope.processForm = function () {
 			AuthService.login($scope.credentials).success(function () {

@@ -54,14 +54,14 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="#/question">Home</a></li>
           </ul>
-          <ul class="nav navbar-nav navbar-right" ng-hide="session.login">
+          <ul class="nav navbar-nav navbar-right" ng-hide="authenticated">
             <li><a href="#/register">Sign Up</a></li>
             <li><a href="#/login">Login</a></li>
 			</ul>
 		
-          <ul class="nav navbar-nav navbar-right">
-			  <li class="clearfix"><a href="#/profile">travis.person</a></li>
-            <li><a href="#/logout">Logout</a></li>
+          <ul class="nav navbar-nav navbar-right" ng-show="authenticated" style="display:none">
+			  <li class="clearfix"><a href="#/profile">{{current_user.Username}}</a></li>
+            <li><a askeecs-logout>Logout</a></li>
 			</ul>
         </div><!--/.navbar-collapse -->
       </div>

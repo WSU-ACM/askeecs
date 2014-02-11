@@ -30,7 +30,7 @@ askeecsApp.config(['$routeProvider',
 ]);
 
 askeecsApp.run(function($rootScope, $location, AuthService, FlashService) {
-	var routesThatRequireAuth = ['/ask', '/vote'];
+	var routesThatRequireAuth = ['/ask'];
 
 	$rootScope.$on('$routeChangeStart', function (event, next, current) {
 		FlashService.clear();
@@ -80,17 +80,21 @@ askeecsApp.factory("SessionService", function () {
 	}
 });
 
-askeecsApp.factory("AuthService", ['$http', '$location', 'SessionService', 'FlashService',
-	function($http, $location, SessionService, FlashService) {
+askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionService', 'FlashService',
+	function($rootScope, $http, $location, SessionService, FlashService) {
 
 		var cacheSession = function (user) {
 			SessionService.set('authenticated', true);
 			SessionService.set('user', user);
+			$rootScope.authenticated = true;
+			$rootScope.user = user;
 		}
 
 		var uncacheSession = function () {
 			SessionService.unset('authenticated');
 			SessionService.unset('user');
+			$rootScope.authenticated = false;
+			$rootScope.current_user = {};
 		}
 
 		var loginError = function (res) {
@@ -119,7 +123,7 @@ askeecsApp.factory("AuthService", ['$http', '$location', 'SessionService', 'Flas
 					return SessionService.get('user');
 				}
 
-				return null;
+				return {};
 			}
 		}
 	}
@@ -135,4 +139,19 @@ askeecsApp.factory("FlashService", function ($rootScope) {
 		}
 	}
 });
+
+askeecsApp.directive('askeecsLogout', function (AuthService) {
+	return {
+		restrict: 'A',
+		 link: function(scope, element, attrs) {
+			var evHandler = function(e) {
+				e.preventDefault;
+				AuthService.logout();
+				return false;
+			}
+
+			element.on ? element.on('click', evHandler) : element.bind('click', evHandler);
+		 }
+	}
+})
 
