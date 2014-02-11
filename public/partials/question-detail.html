@@ -52,7 +52,7 @@
 					<li class="active"><a href="#">Most Votes</a></li>
 					<li><a href="#">Recent</a></li>
 				</ul>
-				<ul class="askeecs-resonses">
+				<ul class="askeecs-responses">
 					<li class="askeecs-question clearfix" ng-repeat="response in question.Responses">
 						<div class="askeecs-media askeecs-widget askeecs-widget-box">
 							<div class="askeecs-vote-up">
@@ -64,19 +64,20 @@
 							<div class="askeecs-vote-down">
 								<span class="glyphicon glyphicon-chevron-down"></span>
 							</div>
-							<div class="askeecs-star-response">
+							<div class="askeecs-star-question">
 								<span class="glyphicon glyphicon-star-empty"></span>
 							</div>
 						</div>
-						<div class="askeecs-response-details clearfix" style="">
+						<div class="askeecs-question-details clearfix" style="">
 							{{response.Body}}
 							<hr>
-							<div class="askeecs-response-author ">
+							<div class="askeecs-question-author pull-right">
 								<span title="{{response.Timestamp | date:'medium'}}" am-time-ago="response.Timestamp"></span>
 
 								<a href="#">{{response.Author}}</a>
 								<span class="badge">0</span>
 							</div>
+							<!--
 							<ul class="askeecs-comment-list list-unstyled">
 								<li class="askeecs-comment" ng-repeat="comment in response.comments">
 								<p><a href="#" ><span class="glyphicon glyphicon-arrow-up"></span></a> {{comment.Body}} – <a href="#" class="">{{comment.Author}}</a> <small><span title="{{question.Timestamp | date:'medium'}}" am-time-ago="question.Timestamp"></span></small></p>
@@ -98,6 +99,7 @@
 									</div>
 								</form>
 							</div>
+							-->
 						</div>
 					</li>
 				</ul>
