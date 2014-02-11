@@ -132,7 +132,7 @@ askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '
 			$http({
 				method: 'post',
 				url: '/q/' + $scope.question.ID + '/comment/',
-				data: $scope.response
+				data: $scope.comment
 			}).success(function(data) {
 				delete $scope.scomment;
 				$scope.question.Comments.push(data);
