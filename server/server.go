@@ -121,13 +121,13 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	if err != nil {
 		fmt.Println(err)
 		time.Sleep(time.Second)
-		return 404, "Failed"
+		return 404, "{\"Message\":\"Login Failed\"}"
 	}
 	users := s.users.FindWhere(bson.M{"username":a.Username})
 	if len(users) == 0 {
 		fmt.Println("User not found.")
 		time.Sleep(time.Second)
-		return http.StatusUnauthorized, "Invalid Username or Password."
+		return 401, "{\"Message\":\"Invalid Username or Password\"}"
 	}
 
 	user, _ := users[0].(*User)
@@ -135,7 +135,7 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	if user.Password != a.Password {
 		fmt.Println("Invalid password.")
 		time.Sleep(time.Second)
-		return http.StatusUnauthorized, "Invalid Username or Password."
+		return http.StatusUnauthorized, "{\"Message\":\"Invalid Username or Password.\"}"
 	}
 
 	tok := s.GetSessionToken()
@@ -146,7 +146,7 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	session.Set("Login", tok);
 
 	fmt.Println("Logged in!");
-	return 200, "OK"
+	return 200, ""
 }
 
 func (s *AEServer) HandleMe(session sessions.Session) (int, string) {
