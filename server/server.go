@@ -195,12 +195,12 @@ func (s *AEServer) HandleEditQuestion(sess sessions.Session, params martini.Para
 	id := bson.ObjectIdHex(params["id"])
 	user := s.GetAuthedUser(sess)
 	if user == nil {
-		return 401, "{\"Message\":\"Not authorized to edit!\"}"
+		return 401, Message("Not authorized to edit!"
 	}
 
 	q := QuestionFromJson(r.Body)
 	if q == nil {
-		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+		return http.StatusBadRequest, Message("Poorly formatted JSON")
 	}
 
 	original := s.questions.FindByID(id).(*Question)
@@ -216,12 +216,12 @@ func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.
 	id := bson.ObjectIdHex(params["id"])
 	user := s.GetAuthedUser(sess)
 	if user == nil {
-		return 401, "{\"Message\":\"Not authorized to reply!\"}"
+		return 401, Message("Not authorized to reply!")
 	}
 
 	reply := ResponseFromJson(r.Body)
 	if reply == nil {
-		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+		return http.StatusBadRequest, Message("Poorly formatted JSON")
 	}
 
 	reply.ID = bson.NewObjectId()
@@ -230,7 +230,7 @@ func (s *AEServer) HandleQuestionResponse(sess sessions.Session, params martini.
 
 	question,ok := s.questions.FindByID(id).(*Question)
 	if !ok {
-		return http.StatusForbidden, "{\"Message\":\"No such question!\"}"
+		return http.StatusForbidden, Message("No such question!")
 	}
 	question.Responses = append(question.Responses, reply)
 	s.questions.Update(question)
@@ -246,12 +246,12 @@ func (s *AEServer) HandleResponseComment(sess sessions.Session, params martini.P
 	id := bson.ObjectIdHex(params["id"])
 	user := s.GetAuthedUser(sess)
 	if user == nil {
-		return 401, "{\"Message\":\"Not authorized to reply!\"}"
+		return 401, Message("Not authorized to reply!")
 	}
 
 	comment := CommentFromJson(r.Body)
 	if comment == nil {
-		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+		return http.StatusBadRequest, Message("Poorly formatted JSON")
 	}
 	comment.Author = user.Username
 	comment.Timestamp = time.Now()
@@ -259,7 +259,7 @@ func (s *AEServer) HandleResponseComment(sess sessions.Session, params martini.P
 
 	question,ok := s.questions.FindByID(id).(*Question)
 	if !ok {
-		return http.StatusForbidden, "{\"Message\":\"No such question!\"}"
+		return http.StatusForbidden, Message("No such question!")
 	}
 	resp_id := params["resp"]
 	resp := question.GetResponse(bson.ObjectId(resp_id))
