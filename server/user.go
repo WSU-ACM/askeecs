@@ -9,7 +9,7 @@ import (
 )
 
 type User struct {
-	_id bson.ObjectId
+	ID bson.ObjectId "_id,omitempty"
 	Username string
 	Password string `json:"-"`
 	Salt string `json:"-"`
@@ -21,7 +21,7 @@ func (u *User) New() I {
 }
 
 func (u *User) GetID() bson.ObjectId {
-	return u._id
+	return u.ID
 }
 
 func (u *User) JsonBytes() []byte {

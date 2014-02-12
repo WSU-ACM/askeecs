@@ -17,6 +17,7 @@ type Question struct {
 	Upvotes []bson.ObjectId
 	Downvotes []bson.ObjectId
 	Timestamp time.Time
+	LastEdit time.Time
 	Body string
 	Responses []*Response
 	Comments []*Comment

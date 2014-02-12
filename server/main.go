@@ -22,8 +22,10 @@ func main() {
 	m.Get("/q", s.HandleGetQuestions)
 	m.Post("/q", s.HandlePostQuestion)
 	m.Get("/q/:id", s.HandleGetQuestion)
+	m.Put("/q/:id", s.HandleEditQuestion)
 	m.Get("/q/:id/vote/:opt", s.HandleVote)
 	m.Post("/q/:id/response", s.HandleQuestionResponse)
+	m.Post("/q/:id/response/:resp/comment", s.HandleResponseComment)
 	m.Post("/q/:id/comment", s.HandleQuestionComment)
 
 	m.Post("/login", s.HandleLogin)
