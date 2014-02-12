@@ -45,48 +45,38 @@ func (s *AEServer) GetSessionToken() string {
 	return tok
 }
 
-func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, session sessions.Session) {
+func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, session sessions.Session) (int,string) {
 	//Verify user account or something
 	login := session.Get("Login")
 	if login == nil {
-		log.Printf("Not logged in!!")
-		w.WriteHeader(404)
-		return
+		return 404, Message("Not Logged In!")
 	}
 	tok := login.(string)
 	user, ok := s.tokens[tok]
 	if !ok {
-		log.Printf("Invalid cookie!")
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		return http.StatusBadRequest, Message("Invalid Cookie!")
 	}
 
-	var q Question
-	dec := json.NewDecoder(r.Body)
-	err := dec.Decode(&q)
-	if err != nil {
-		fmt.Println(err)
-		w.WriteHeader(404)
-		return
+	q := QuestionFromJson(r.Body)
+	if q == nil {
+		return 404, Message("Poorly Formatted JSON.")
 	}
 	q.ID = bson.NewObjectId()
 	q.Author = user.Username
 	q.Timestamp = time.Now()
 
-	fmt.Println(q.ID)
-	err = s.questions.Save(&q)
+	err := s.questions.Save(q)
 	if err != nil {
 		log.Print(err)
-		w.WriteHeader(http.StatusTeapot)
+		return http.StatusInternalServerError, Message("Failed to save question")
 	}
-	str := hex.EncodeToString([]byte(q.ID))
-	w.Write([]byte(str))
+	return 200, q.GetIdHex()
 }
 
 func (s *AEServer) HandleGetQuestions()(int,string) {
 	q := s.questions.FindWhere(bson.M{})
 	if q == nil {
-		return 404,""
+		return 404,Message("Question not found.")
 	}
 	b,_ := json.Marshal(q)
 	return 200, string(b)
@@ -117,21 +107,21 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 	a := AuthFromJson(r.Body)
 	if a == nil {
 		time.Sleep(time.Second)
-		return 404, "{\"Message\":\"Login Failed\"}"
+		return 404, Message("Login Failed")
 	}
 
 	users := s.users.FindWhere(bson.M{"username":a.Username})
 	if len(users) == 0 {
 		fmt.Println("User not found.")
 		time.Sleep(time.Second)
-		return 401, "{\"Message\":\"Invalid Username or Password\"}"
+		return 401, Message("Invalid Username or Password")
 	}
 
 	user, _ := users[0].(*User)
 	if user.Password != a.Password {
 		fmt.Println("Invalid password.")
 		time.Sleep(time.Second)
-		return http.StatusUnauthorized, "{\"Message\":\"Invalid Username or Password.\"}"
+		return http.StatusUnauthorized, Message("Invalid Username or Password.")
 	}
 
 	user.login = time.Now()
@@ -152,7 +142,7 @@ func (s *AEServer) HandleQuestionComment(sess sessions.Session, params martini.P
 
 	comment := CommentFromJson(r.Body)
 	if comment == nil {
-		return http.StatusBadRequest, "{\"Message\":\"Poorly formatted JSON\"}"
+		return http.StatusBadRequest, Message("Poorly formatted JSON")
 	}
 
 	comment.Author = user.Username
@@ -161,7 +151,7 @@ func (s *AEServer) HandleQuestionComment(sess sessions.Session, params martini.P
 
 	question,ok := s.questions.FindByID(id).(*Question)
 	if !ok {
-		return http.StatusForbidden, "{\"Message\":\"No such question!\"}"
+		return http.StatusForbidden, Message("No such question!")
 	}
 	question.Comments = append(question.Comments, comment)
 	s.questions.Update(question)
@@ -293,4 +283,8 @@ func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
 
 	s.users.Save(user)
 	return 200,"Success!"
+}
+
+func Message(s string) string {
+	return fmt.Sprintf("{\"Message\":\"%s\"}", s)
 }

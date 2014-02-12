@@ -2,6 +2,7 @@ package main
 
 import (
 	"labix.org/v2/mgo/bson"
+	"encoding/hex"
 	"encoding/json"
 	"bytes"
 	"time"
@@ -44,6 +45,10 @@ func (q *Question) New() I {
 
 func (q *Question) GetID() bson.ObjectId {
 	return q.ID
+}
+
+func (q *Question) GetIdHex() string {
+	return hex.EncodeToString([]byte(q.ID))
 }
 
 func (q *Question) GetResponse(id bson.ObjectId) *Response {
