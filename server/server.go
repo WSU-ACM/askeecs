@@ -13,6 +13,7 @@ import (
 	"crypto/rand"
 	"bytes"
 	"io"
+	"io/ioutil"
 )
 
 type AEServer struct {
@@ -23,7 +24,7 @@ type AEServer struct {
 	tokens map[string]*User
 	salts map[string]string
 
-	m *martini.Martini
+	m *martini.ClassicMartini
 }
 
 func NewServer() *AEServer {
@@ -33,7 +34,7 @@ func NewServer() *AEServer {
 	s.users = s.db.Collection("Users", new(User))
 	s.tokens = make(map[string]*User)
 
-	s.m := martini.Classic()
+	s.m = martini.Classic()
 	return s
 }
 
@@ -54,6 +55,7 @@ func (s *AEServer) Init(secretfile string) {
 	s.m.Post("/q/:id/response/:resp/comment", s.HandleResponseComment)
 	s.m.Post("/q/:id/comment", s.HandleQuestionComment)
 
+	s.m.Get("/salt", s.HandleGetSalt)
 	s.m.Post("/login", s.HandleLogin)
 	s.m.Post("/register", s.HandleRegister)
 	s.m.Post("/logout", s.HandleLogout)
@@ -122,6 +124,16 @@ func (s *AEServer) HandleGetQuestion(params martini.Params) (int,string) {
 	}
 	b,_ := json.Marshal(q)
 	return 200, string(b)
+}
+
+func (s *AEServer) HandleGetSalt(r *http.Request) (int, string) {
+	a := AuthFromJson(r.Body)
+	if a == nil || a.Username == "" {
+		return 401, Message("Must send username!")
+	}
+	salt := genRandString()
+	s.salts[a.Username] = salt
+	return 200,salt
 }
 
 func (s *AEServer) HandleLogout(session sessions.Session) {
@@ -195,7 +207,7 @@ func (s *AEServer) HandleEditQuestion(sess sessions.Session, params martini.Para
 	id := bson.ObjectIdHex(params["id"])
 	user := s.GetAuthedUser(sess)
 	if user == nil {
-		return 401, Message("Not authorized to edit!"
+		return 401, Message("Not authorized to edit!")
 	}
 
 	q := QuestionFromJson(r.Body)
