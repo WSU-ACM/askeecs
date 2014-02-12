@@ -9,6 +9,7 @@ import (
 	"labix.org/v2/mgo/bson"
 	"encoding/json"
 	"encoding/hex"
+	"crypto/sha256"
 	"log"
 	"crypto/rand"
 	"bytes"
@@ -131,6 +132,10 @@ func (s *AEServer) HandleGetSalt(r *http.Request) (int, string) {
 	if a == nil || a.Username == "" {
 		return 401, Message("Must send username!")
 	}
+	user := s.FindUserByName(a.Username)
+	if user == nil {
+		return 401, Message("Username not found!")
+	}
 	salt := genRandString()
 	s.salts[a.Username] = salt
 	return 200,salt
@@ -146,6 +151,16 @@ func (s *AEServer) HandleLogout(session sessions.Session) {
 	session.Delete("Login")
 }
 
+func (s *AEServer) FindUserByName(name string) *User {
+	users := s.users.FindWhere(bson.M{"username":name})
+	if len(users) == 0 {
+		fmt.Println("User not found.")
+		return nil
+	}
+	user, _ := users[0].(*User)
+	return user
+}
+
 func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session sessions.Session) (int,string) {
 	a := AuthFromJson(r.Body)
 	if a == nil {
@@ -153,15 +168,14 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 		return 404, Message("Login Failed")
 	}
 
-	users := s.users.FindWhere(bson.M{"username":a.Username})
-	if len(users) == 0 {
-		fmt.Println("User not found.")
-		time.Sleep(time.Second)
-		return 401, Message("Invalid Username or Password")
+	salt,ok := s.salts[a.Username]
+	if !ok {
+		return 401,Message("No login salt registered!")
 	}
 
-	user, _ := users[0].(*User)
-	if user.Password != a.Password {
+	user := s.FindUserByName(a.Username)
+	salt_pass := DoHash(user.Password, salt)
+	if salt_pass != a.Password {
 		fmt.Println("Invalid password.")
 		time.Sleep(time.Second)
 		return http.StatusUnauthorized, Message("Invalid Username or Password.")
@@ -357,4 +371,11 @@ func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
 
 func Message(s string) string {
 	return fmt.Sprintf("{\"Message\":\"%s\"}", s)
+}
+
+func DoHash(pass, salt string) string {
+	h := sha256.New()
+	h.Write([]byte(pass))
+	h.Write([]byte(salt))
+	return string(h.Sum(nil))
 }
