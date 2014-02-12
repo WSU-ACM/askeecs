@@ -22,6 +22,8 @@ type AEServer struct {
 
 	tokens map[string]*User
 	salts map[string]string
+
+	m *martini.Martini
 }
 
 func NewServer() *AEServer {
@@ -30,7 +32,36 @@ func NewServer() *AEServer {
 	s.questions = s.db.Collection("Questions", new(Question))
 	s.users = s.db.Collection("Users", new(User))
 	s.tokens = make(map[string]*User)
+
+	s.m := martini.Classic()
 	return s
+}
+
+func (s *AEServer) Init(secretfile string) {
+	secret,err := ioutil.ReadFile(secretfile)
+	if err != nil {
+		panic(err)
+	}
+	store := sessions.NewCookieStore(secret)
+	s.m.Use(sessions.Sessions("ask_eecs_auth_session", store))
+
+	s.m.Get("/q", s.HandleGetQuestions)
+	s.m.Post("/q", s.HandlePostQuestion)
+	s.m.Get("/q/:id", s.HandleGetQuestion)
+	s.m.Put("/q/:id", s.HandleEditQuestion)
+	s.m.Get("/q/:id/vote/:opt", s.HandleVote)
+	s.m.Post("/q/:id/response", s.HandleQuestionResponse)
+	s.m.Post("/q/:id/response/:resp/comment", s.HandleResponseComment)
+	s.m.Post("/q/:id/comment", s.HandleQuestionComment)
+
+	s.m.Post("/login", s.HandleLogin)
+	s.m.Post("/register", s.HandleRegister)
+	s.m.Post("/logout", s.HandleLogout)
+	s.m.Post("/me", s.HandleMe);
+}
+
+func (s *AEServer) Serve() {
+	s.m.Run()
 }
 
 func genRandString() string {
@@ -240,24 +271,24 @@ func (s *AEServer) HandleResponseComment(sess sessions.Session, params martini.P
 }
 
 func (s *AEServer) HandleMe(session sessions.Session) (int, string) {
-	return 200, "Nothing here"
+	return 200, Message("Nothing here")
 }
 
 func (s *AEServer) HandleVote(params martini.Params, session sessions.Session, r *http.Request) (int,string) {
 	opt := params["opt"]
 	if opt != "up" && opt != "down" {
-		return http.StatusMethodNotAllowed,"{\"Message\":\"Invalid vote type\"}"
+		return http.StatusMethodNotAllowed,Message("Invalid vote type")
 	}
 	user := s.GetAuthedUser(session)
 	if user == nil {
-		return http.StatusUnauthorized, "{\"Message\":\"Not logged in!\"}"
+		return http.StatusUnauthorized, Message("Not logged in!")
 	}
 
 	fmt.Println(user)
 	q := bson.ObjectIdHex(params["id"])
 	question,ok := s.questions.FindByID(q).(*Question)
 	if question == nil || !ok {
-		return 404, "{\"Message\":\"No such question!\"}"
+		return 404, Message("No such question!")
 	}
 	switch opt {
 		case "up":
