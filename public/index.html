@@ -27,6 +27,7 @@
 		<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 		<!--	<script src="js/vendor/markdown.js"></script>-->
 		<script src="js/vendor/marked.js"></script>
+		<script src="js/vendor/hashes.min.js"></script>
 
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.12/angular.js"></script>
 		<script src="js/vendor/angular/angular-moment.js"></script>
@@ -57,11 +58,11 @@
           <ul class="nav navbar-nav navbar-right" ng-hide="authenticated">
             <li><a href="#/register">Sign Up</a></li>
             <li><a href="#/login">Login</a></li>
-			</ul>
+		</ul>
 		
-          <ul class="nav navbar-nav navbar-right ng-hide" ng-show="authenticated">
-			  <li class="clearfix"><a href="#/profile">{{user.Username}}</a></li>
-            <li><a href="#" askeecs-logout>Logout</a></li>
+			  <ul class="nav navbar-nav navbar-right ng-hide" ng-show="authenticated">
+				  <li class="clearfix"><a href="#/profile">{{user.Username}}</a></li>
+				<li><a href="#" askeecs-logout>Logout</a></li>
 			</ul>
         </div><!--/.navbar-collapse -->
       </div>
