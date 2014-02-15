@@ -34,6 +34,7 @@ func NewServer() *AEServer {
 	s.questions = s.db.Collection("Questions", new(Question))
 	s.users = s.db.Collection("Users", new(User))
 	s.tokens = make(map[string]*User)
+	s.salts = make(map[string]string)
 
 	s.m = martini.Classic()
 	return s
@@ -75,6 +76,7 @@ func genRandString() string {
 
 func (s *AEServer) GetSessionToken() string {
 	tok := genRandString()
+	//Find a unique random string
 	for _,ok := s.tokens[tok]; ok; tok = genRandString() {}
 	return tok
 }
@@ -95,6 +97,7 @@ func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, se
 	if q == nil {
 		return 404, Message("Poorly Formatted JSON.")
 	}
+	//Assign question an ID
 	q.ID = bson.NewObjectId()
 	q.Author = user.Username
 	q.Timestamp = time.Now()
@@ -127,6 +130,7 @@ func (s *AEServer) HandleGetQuestion(params martini.Params) (int,string) {
 	return 200, string(b)
 }
 
+//Get salt associated with a given username
 func (s *AEServer) HandleGetSalt(r *http.Request) (int, string) {
 	a := AuthFromJson(r.Body)
 	if a == nil || a.Username == "" {
@@ -194,7 +198,7 @@ func (s *AEServer) HandleQuestionComment(sess sessions.Session, params martini.P
 	id := bson.ObjectIdHex(params["id"])
 	user := s.GetAuthedUser(sess)
 	if user == nil {
-		return 401, "{\"Message\":\"Not authorized to reply!\"}"
+		return 401, Message("Not authorized to reply!")
 	}
 
 	comment := CommentFromJson(r.Body)
