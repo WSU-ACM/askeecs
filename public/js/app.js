@@ -107,6 +107,23 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 
 		return {
 			login: function (credentials) {
+
+				// Get a salt for this session
+				$http.get("/login", {"Username" : u}).
+				success(function(salt) {
+
+				})
+				// Generate a SHA256 Hasher
+				var SHA256 = new Hashes.SHA256;
+
+				// Friendly vars
+				var u = credentials.Username;
+				var p = credentials.Password;
+				var s = "" + Date.now() % Math.random();
+					s = SHA256.hex(s);
+
+				p = SHA256.hex(s + SHA256.hex(u + ":" + p));
+
 				var login = $http.post("/login", credentials);
 				login.success(cacheSession);
 				login.success(FlashService.clear);

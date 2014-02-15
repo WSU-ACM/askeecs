@@ -10,22 +10,37 @@ askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
 
 askeecsControllers.controller('RegisterCtrl', ['$scope', '$http', '$location',
 	function ($scope, $http, $location) {
+		var dataMaster = {"Username" : "", "Password" : ""}
 		$scope.data = {}
 		$scope.processForm = function () {
-			console.log("GO!");
 			if($scope.data.Password != $scope.data.cpassword) {
 				console.log("Missed matched password");
 				return;
 			}
 
 			delete $scope.data.cpassword;
-			console.log($scope.data);
+
+
+			// Generate a SHA256 Hasher
+			var SHA256 = new Hashes.SHA256;
+
+			// Friendly vars
+			var u = $scope.data.Username;
+			var p = $scope.data.Password;
+			var s = "" + Date.now() % Math.random();
+				s = SHA256.hex(s);
+
+			// Reset the scope
+			$scope.data = dataMaster;
+
+			p = SHA256.hex(s + SHA256.hex(u + ":" + p));
+
 			$http({
-				method: 'POST',
+				method: 'GET',
 				url: '/register',
-				data: $scope.data
+				data: {"Username" : u, "Password" : p, "Salt" : s }
 			}).success(function(data) {
-				$location.path("/login");	
+				$location.path("/login");
 			});
 			
 		}
