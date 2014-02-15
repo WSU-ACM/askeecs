@@ -1,12 +1,12 @@
 
 				<div class="askeecs-question clearfix">
 					<form novalidate role="form" id="f-question" ng-submit="processForm()">
-						<div class="form-group" ng-class="{'has-error': errorTitle}">
+						<div class="form-group" ng-class="{'has-error': error.title}">
 							<label for="qTitle">Topic</label>
-							<input type="text" name="title" ng-model="title" class="form-control" id="gTitle" placeholder="Title" required>
+							<input type="text" name="title" ng-model="question.title" class="form-control" id="gTitle" placeholder="Title" required>
 						</div>
-						<div class="form-group" ng-class="{'has-error': errorMarkdown}">
-							<div class="alert alert-danger" ng-show="errorMarkdown">{{errorMarkdown}}</div>
+						<div class="form-group" ng-class="{'has-error': error.markdown}">
+							<div class="alert alert-danger" ng-show="error.markdown">{{error.markdown}}</div>
 							<div class="btn-toolbar" role="toolbar">
 								<div class="btn-group btn-group-textbox">
 									<button type="button" class="btn btn-default btn-sm"><span class="fa fa-bold"></span></button>
@@ -23,7 +23,7 @@
 									<button type="button" class="btn btn-default btn-sm"><span class="fa fa-list-ol"></span></button>
 								</div>
 							</div>
-							<textarea name="body" class="form-control form-control-has-group" rows="10" id="mk-input" ng-model='markdown' ng-change='md2Html()' required></textarea>
+							<textarea name="body" class="form-control form-control-has-group" rows="10" id="mk-input" ng-model='question.markdown' ng-change='md2Html()' required></textarea>
 						</div>
 						<hr>
 						<div class="form-group">
@@ -31,9 +31,9 @@
 							<div class="askeecs-question-preview" ng-bind-html='htmlSafe' id="mk-preview">
 							</div>
 						</div>
-						<div class="form-group" ng-class="{'has-error': errorTags}">
+						<div class="form-group" ng-class="{'has-error': error.tags}">
 							<label for="qTags">Tags</label>
-							<input type="text" ng-model="tags" name="tags" class="form-control" id="gTag" placeholder="Tags" required>
+							<input type="text" ng-model="question.tags" name="tags" class="form-control" id="gTag" placeholder="Tags" required>
 						</div>
 						<div class="form-group">
 							<button id="submit-question" type="submit" class="btn btn-primary pull-right">Ask Question</button>

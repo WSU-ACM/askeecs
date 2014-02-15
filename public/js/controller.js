@@ -8,92 +8,88 @@ askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
 	}
 ]);
 
-askeecsControllers.controller('RegisterCtrl', ['$scope', '$http', '$location',
-	function ($scope, $http, $location) {
-		var dataMaster = {"Username" : "", "Password" : ""}
-		$scope.data = {}
+askeecsControllers.controller('RegisterCtrl', ['$scope', '$http', '$location', 'AuthService',
+	function ($scope, $http, $location, AuthService) {
+		var credentials = { "Username": "", "Password": "", "CPassword": "" }
+
+		$scope.credentials = credentials; 
 		$scope.processForm = function () {
-			if($scope.data.Password != $scope.data.cpassword) {
+
+			// Make sure they have entered a password that matches
+			if($scope.credentials.Password != $scope.credentials.CPassword) {
 				console.log("Missed matched password");
 				return;
 			}
 
-			delete $scope.data.cpassword;
+			// We don't need this to be passed along
+			delete $scope.credentials.CPassword;
 
-
-			// Generate a SHA256 Hasher
-			var SHA256 = new Hashes.SHA256;
-
-			// Friendly vars
-			var u = $scope.data.Username;
-			var p = $scope.data.Password;
-			var s = "" + Date.now() % Math.random();
-				s = SHA256.hex(s);
-
-			// Reset the scope
-			$scope.data = dataMaster;
-
-			p = SHA256.hex(s + SHA256.hex(u + ":" + p));
-
-			$http({
-				method: 'GET',
-				url: '/register',
-				data: {"Username" : u, "Password" : p, "Salt" : s }
-			}).success(function(data) {
+			// Register the user and redirect them to the login page
+			AuthService.register($scope.credentials, function () {
 				$location.path("/login");
 			});
-			
+
+			// Make sure we wipe out the credentials
+			$scope.credentials = credentials; 
+
 		}
 	}
 ]);
 
-askeecsControllers.controller('LoginCtrl', ['$scope', '$http', '$cookies', '$location', 'AuthService',
-	function ($scope, $http, $cookies, $location, AuthService) {
-		$scope.credentials = { "Username": "", "Password": "" }
+askeecsControllers.controller('LoginCtrl', ['$scope', '$http', '$location', 'AuthService',
+	function ($scope, $http, $location, AuthService) {
+		var credentials = { "Username": "", "Password": "", "Salt": "" }
+
+		$scope.credentials = credentials
 		$scope.processForm = function () {
-			AuthService.login($scope.credentials).success(function () {
-				$location.path('/questions');
+
+			// Log the user in and direct them tot he home page
+			AuthService.login($scope.credentials, function () {
+				$location.path("/");
 			});
+
+			// Make sure we wipe out the credentials
+			$scope.credentials = credentials
 		}
 	}
 ]);
 
 askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', '$sce', '$location',
 	function ($scope, $http, $window, $sce, $location) {
-		$scope.markdown="";
-		$scope.title="";
-		$scope.tags="";
+		var question = {"markdown" : "", "title", "", "tags" : ""}
+
+		$scope.question = question;
+
 		$scope.md2Html = function() {
-			var src = $scope.markdown || ""
-			$scope.html = $window.marked($scope.markdown);
-			$scope.htmlSafe = $sce.trustAsHtml($scope.html);
+			var src			= $scope.markdown || ""
+			var html		= $window.marked(src);
+			$scope.htmlSafe = $sce.trustAsHtml(html);
 		}
 
 		$scope.processForm = function () {
-			console.log($scope.markdown);
-			console.log($scope.tags);
-			console.log($scope.title);
-			delete $scope.errorMarkdown;
-			delete $scope.errorTitle;
-			delete $scope.errorTags;
 
+			// Remove any previous error statements
+			$scope.error = {}
+
+
+			// Default to a non error state
 			var err = false;
 
 			if ($scope.markdown.length < 50)
 			{
-				$scope.errorMarkdown = "Your question must be 50 characters or more."
+				$scope.error.markdown = "Your question must be 50 characters or more."
 				err = true;
 			}
 
 			if ($scope.title.length == 0)
 			{
-				$scope.errorTitle = "You must enter a title."
+				$scope.error.title = "You must enter a title."
 				err = true;
 			}
 
 			if ($scope.tags.length == 0)
 			{
-				$scope.errorTags = "You must have at least one tag."
+				$scope.error.tags = "You must have at least one tag."
 				err = true;
 			}
 
@@ -106,9 +102,10 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 				url: '/q',
 				data: {Title:$scope.title, Body: $scope.markdown, Tags: $scope.tags.split(' ')}
 			}).success(function(data) {
-				console.log(data);
+				// TODO: this should be a JSON response
 				$location.path("/questions/"+data);	
 			});
+			// TODO: Failure
 		}
 
 	}
@@ -151,6 +148,7 @@ askeecsControllers.controller('QuestionDetailCtrl', ['$scope', '$routeParams', '
 			$scope.htmlSafe = $sce.trustAsHtml($scope.html);
 		}
 
+		// Can a comment have this own controller and it's own scope?
 		$scope.processComment = function () {
 			delete $scope.errorComment;
 

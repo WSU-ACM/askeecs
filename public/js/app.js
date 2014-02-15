@@ -105,36 +105,67 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 			FlashService.show(res.Message);
 		}
 
+		var protect = function (secret, salt) {
+			var SHA256 = new Hashes.SHA256;
+			return SHA256.hex(salt + SHA256.hex(secret));
+		}
+
 		return {
-			login: function (credentials) {
+			login: function (credentials, fn) {
+
+				// Friendly vars
+				var u = credentials.Usernamej
+				var p = credentials.Password;
+
+				credentials.Username = "";
+				credentials.Password = "";
 
 				// Get a salt for this session
-				$http.get("/login", {"Username" : u}).
-				success(function(salt) {
+				$http.get("/salt", {"Username" : u}).
+				success(function(s) {
 
+					// Produce the "Password" to send
+					p = protect (u + p, s);
+
+					// Try to login
+					var login = $http.post("/login", {"Username": u, "Password": p, "Salt": s});
+
+					login.success(cacheSession);
+					login.success(FlashService.clear);
+					login.error(loginError);
+
+					if ( typeof fn === "function )
+						login.success(fn);
 				})
-				// Generate a SHA256 Hasher
-				var SHA256 = new Hashes.SHA256;
+			},
+			logout: function (fn) {
+				var logout =  $http.post("/logout");
+				logout.success(uncacheSession);
+
+				if ( typeof fn === "function )
+					logout.success(fn);
+
+			},
+			register: function (credentials, fn) {
 
 				// Friendly vars
 				var u = credentials.Username;
 				var p = credentials.Password;
-				var s = "" + Date.now() % Math.random();
-					s = SHA256.hex(s);
 
-				p = SHA256.hex(s + SHA256.hex(u + ":" + p));
+				credentials.Username = "";
+				credentials.Password = "";
 
-				var login = $http.post("/login", credentials);
-				login.success(cacheSession);
-				login.success(FlashService.clear);
-				login.error(loginError);
-				return login;
-			},
-			logout: function () {
-				var logout =  $http.post("/logout");
-				logout.success(uncacheSession);
-				return logout;
-			},
+				var s = protect(Date.now(), Math.random());
+
+				// Produce the "Password" to send
+				p = verifier(u + p, s);
+
+				var register = $http.post("/register", {"Username" : u, "Password" : p, "Salt" : s });
+
+				if ( typeof fn === "function )
+					register.success(fn);
+
+			}
 			isLoggedIn: function () {
 				return SessionService.get('authenticated');
 			},
