@@ -114,14 +114,14 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 			login: function (credentials, fn) {
 
 				// Friendly vars
-				var u = credentials.Usernamej
+				var u = credentials.Username;
 				var p = credentials.Password;
 
 				credentials.Username = "";
 				credentials.Password = "";
 
 				// Get a salt for this session
-				$http.get("/salt", {"Username" : u}).
+				$http.post("/salt", {"Username" : u}).
 				success(function(s) {
 
 					// Produce the "Password" to send
@@ -134,7 +134,7 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 					login.success(FlashService.clear);
 					login.error(loginError);
 
-					if ( typeof fn === "function )
+					if ( typeof fn === "function" )
 						login.success(fn);
 				})
 			},
@@ -142,7 +142,7 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 				var logout =  $http.post("/logout");
 				logout.success(uncacheSession);
 
-				if ( typeof fn === "function )
+				if ( typeof fn === "function" )
 					logout.success(fn);
 
 			},
@@ -158,14 +158,14 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 				var s = protect(Date.now(), Math.random());
 
 				// Produce the "Password" to send
-				p = verifier(u + p, s);
+				p = protect(u + p, s);
 
 				var register = $http.post("/register", {"Username" : u, "Password" : p, "Salt" : s });
 
-				if ( typeof fn === "function )
+				if ( typeof fn === "function")
 					register.success(fn);
 
-			}
+			},
 			isLoggedIn: function () {
 				return SessionService.get('authenticated');
 			},

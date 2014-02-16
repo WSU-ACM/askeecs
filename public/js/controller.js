@@ -56,7 +56,7 @@ askeecsControllers.controller('LoginCtrl', ['$scope', '$http', '$location', 'Aut
 
 askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', '$sce', '$location',
 	function ($scope, $http, $window, $sce, $location) {
-		var question = {"markdown" : "", "title", "", "tags" : ""}
+		var question = {"markdown" : "", "title" : "", "tags" : ""}
 
 		$scope.question = question;
 
