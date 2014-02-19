@@ -20,6 +20,7 @@ A stackoverflow like site for the WSU EECS Community.
 - Spin up mongo db:
   - `mkdir data && mongodb --dbpath data`
 - Finally, run `./askeecs`
+- By default, martini serves to localhost at port 3000
 
 ##Contributors:
 Jeromy Johnson
