@@ -61,7 +61,7 @@ func (s *AEServer) Init(secretfile string) {
 	s.m.Post("/login", s.HandleLogin)
 	s.m.Post("/register", s.HandleRegister)
 	s.m.Post("/logout", s.HandleLogout)
-	s.m.Post("/me", s.HandleMe);
+	s.m.Post("/me", s.HandleMe)
 }
 
 func (s *AEServer) Serve() {
