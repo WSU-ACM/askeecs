@@ -57,7 +57,7 @@ func (s *AEServer) Init(secretfile string) {
 	s.m.Post("/q/:id/response/:resp/comment", s.HandleResponseComment)
 	s.m.Post("/q/:id/comment", s.HandleQuestionComment)
 
-	s.m.Get("/salt", s.HandleGetSalt)
+	s.m.Post("/salt", s.HandleGetSalt)
 	s.m.Post("/login", s.HandleLogin)
 	s.m.Post("/register", s.HandleRegister)
 	s.m.Post("/logout", s.HandleLogout)
