@@ -32,7 +32,13 @@
 ##API Layout
 
 - Get "/q", - Get a number of questions
-- Post "/q", - Ask a question
+- Post "/q", - Ask a question [Requires Auth]
+
+	{
+		"Title":"Your questions title",
+		"Body":"Your question"
+	}
+
 - Get "/q/:id", - Get Specific question
 - Put "/q/:id", - Update/Edit question
 - Get "/q/:id/vote/:opt", - Vote up or down on the given question
@@ -40,7 +46,16 @@
 - Post "/q/:id/response/:resp/comment", - Comment on the specified response
 - Post "/q/:id/comment", - Comment on the specified question
 
+	{
+		"Body":"Your comment"
+	}
+
 - Get "/salt", - Gets a login salt for a specified user
+
+	{
+		"Username":"YourUsername"
+	}
+
 - Post "/login", - Handles a users login
 - Post "/register", - Handles Registration
 - Post "/logout" - Delete current user session
