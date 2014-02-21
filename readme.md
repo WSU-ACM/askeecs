@@ -7,16 +7,16 @@ A stackoverflow like site for the WSU EECS Community.
 
 ##How To Use
 
-- Install Go [http://golang.org](Go)
-- Make sure your gopath is configured properly
+- Install [Go](http://golang.org)
+- Make sure your `GOPATH` is configured properly
 - Install Martini:
   - `go get github.com/codegangsta/martini`
   - `go get github.com/martini-contrib/sessions`
-- Install MongoDB (using your package manager)
+- Install [MongoDB](http://www.mongodb.org)
 - Install the mongo bindings for go:
   - `go get labix.org/v2/mgo`
   - `go get labix.org/v2/mgo/bson`
-- run make!
+- run `make`!
 - Spin up mongo db:
   - `mkdir data && mongodb --dbpath data`
 - Finally, run `./askeecs`
