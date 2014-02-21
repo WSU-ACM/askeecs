@@ -13,7 +13,7 @@ A stackoverflow like site for the WSU EECS Community.
   - `go get github.com/codegangsta/martini`
   - `go get github.com/martini-contrib/sessions`
  4. Install [MongoDB](http://www.mongodb.org).
- 5. Install the Mongo bindings for Go:
+ 5. Install the [Mongo bindings for Go](http://labix.org/mgo):
   - `go get labix.org/v2/mgo`
   - `go get labix.org/v2/mgo/bson`
  6. Run `make`!
@@ -24,5 +24,5 @@ A stackoverflow like site for the WSU EECS Community.
 By default, martini serves to localhost at port 3000.
 
 ## Contributors:
-Jeromy Johnson
-Travis Person
+- Jeromy Johnson
+- Travis Person
