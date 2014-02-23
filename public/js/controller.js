@@ -65,7 +65,7 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 		$scope.question = question;
 
 		$scope.md2Html = function() {
-			var src			= $scope.markdown || ""
+			var src			= $scope.question.markdown || ""
 			var html		= $window.marked(src);
 			$scope.htmlSafe = $sce.trustAsHtml(html);
 		}
