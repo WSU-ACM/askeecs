@@ -60,7 +60,7 @@ func (s *AEServer) Init(secretfile string) {
 	s.m.Post("/salt", s.HandleGetSalt)
 	s.m.Post("/login", s.HandleLogin)
 	s.m.Post("/register", s.HandleRegister)
-	s.m.Get("/register/salt", s.HandleUniqueSalt)
+	s.m.Post("/register/salt", s.HandleUniqueSalt)
 	s.m.Post("/logout", s.HandleLogout)
 	s.m.Post("/me", s.HandleMe)
 }
