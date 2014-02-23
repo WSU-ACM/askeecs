@@ -60,6 +60,7 @@ func (s *AEServer) Init(secretfile string) {
 	s.m.Post("/salt", s.HandleGetSalt)
 	s.m.Post("/login", s.HandleLogin)
 	s.m.Post("/register", s.HandleRegister)
+	s.m.Get("/register/salt", s.HandleUniqueSalt)
 	s.m.Post("/logout", s.HandleLogout)
 	s.m.Post("/me", s.HandleMe)
 }
@@ -143,6 +144,18 @@ func (s *AEServer) HandleGetSalt(r *http.Request) (int, string) {
 	salt := genRandString()
 	s.salts[a.Username] = salt
 	return 200,salt
+}
+
+func (s *AEServer) HandleUniqueSalt(r *http.Request) (int, string) {
+	a := AuthFromJson(r.Body)
+	if a == nil || a.Username == "" {
+		return 401, Message("No Username given.")
+	}
+	user := s.FindUserByName(a.Username)
+	if user == nil {
+		return 401, Message("No such user!")
+	}
+	return 200, fmt.Sprintf("{\"Salt\":\"%s\"}", user.Salt)
 }
 
 func (s *AEServer) HandleLogout(session sessions.Session) {
@@ -383,3 +396,4 @@ func DoHash(pass, salt string) string {
 	h.Write([]byte(salt))
 	return string(h.Sum(nil))
 }
+
