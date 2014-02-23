@@ -395,6 +395,6 @@ func DoHash(pass, salt string) string {
 	h := sha256.New()
 	h.Write([]byte(pass))
 	h.Write([]byte(salt))
-	return string(h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil))
 }
 
