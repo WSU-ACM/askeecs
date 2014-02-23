@@ -34,6 +34,7 @@ func (u *User) JsonBytes() []byte {
 type AuthAttempt struct {
 	Username string
 	Password string
+	Salt string
 }
 
 func AuthFromJson(r io.Reader) *AuthAttempt {

@@ -377,6 +377,7 @@ func (s *AEServer) HandleRegister(r *http.Request) (int, string) {
 	user := new(User)
 	user.Password = a.Password
 	user.Username = a.Username
+	user.Salt = a.Salt
 	user.ID = bson.NewObjectId()
 
 	err = s.users.Save(user)
