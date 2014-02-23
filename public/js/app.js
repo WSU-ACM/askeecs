@@ -110,6 +110,18 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 			return SHA256.hex(salt + SHA256.hex(secret));
 		}
 
+		var hash = function () {
+			var s = ""
+			var SHA256 = new Hashes.SHA256;
+
+			for ( var i = 0; i < arguments.length; i++) {
+				s += arguments[i];
+			}
+
+			return SHA256.hex(s);
+
+		}
+
 		return {
 			login: function (credentials, fn) {
 
@@ -121,22 +133,28 @@ askeecsApp.factory("AuthService", ['$rootScope', '$http', '$location', 'SessionS
 				credentials.Password = "";
 
 				// Get a salt for this session
-				$http.post("/salt", {"Username" : u}).
-				success(function(s) {
+				$http.post("/register/salt", {"Username" : u})
+					.success(function(user_salt) {
+						$http.post("/salt", {"Username" : u})
+							.success(function(session_salt) {
 
-					// Produce the "Password" to send
-					p = protect (u + p, s);
+								// Produce the "Password" to send
+								p = protect (u + p, user_salt.Salt);
+								p = hash( p , session_salt)
 
-					// Try to login
-					var login = $http.post("/login", {"Username": u, "Password": p, "Salt": s});
+								// Try to login
+								var login = $http.post("/login", {"Username": u, "Password": p, "Salt": session_salt});
 
-					login.success(cacheSession);
-					login.success(FlashService.clear);
-					login.error(loginError);
+								login.success(cacheSession);
+								login.success(FlashService.clear);
+								login.error(loginError);
 
-					if ( typeof fn === "function" )
-						login.success(fn);
-				})
+								if ( typeof fn === "function" )
+									login.success(fn);
+							}
+						)
+					}
+				)
 			},
 			logout: function (fn) {
 				var logout =  $http.post("/logout");
@@ -194,6 +212,71 @@ askeecsApp.factory("FlashService", function ($rootScope) {
 	}
 });
 
+askeecsApp.factory('Questions', ['$http',
+	function ($http) {
+
+		var urlBase = '/q'
+		var store	= []
+		var f		= {};
+
+		var p = function (data) {
+			this.success = function (fn) {
+				fn(data)
+			}
+		}
+
+		f.List = function () {
+			return $http.get(urlBase)
+				.success(function (data) {
+					store = data;
+				});
+		}
+
+		f.Get = function (id, force) {
+			if ( !force ) {
+				for ( var i = 0; i < store.length; i++ )
+				{
+					if ( store[i].ID == id )
+						return new p(store[i]); 
+				}
+			}
+			
+			return $http.get(urlBase + '/' + id);
+		}
+
+		f.Insert = function (item) {
+			return $http.post(urlBase, item)
+				.success(function(data) {
+					store.push(data);
+				});
+		}
+
+		f.Update = function (item) {
+			return $http.put(urlBase + '/' + item.ID, item)
+				.success(function (data) {
+					for ( var i = 0; i < store.length; i++ )
+					{
+						if ( store[i].ID == id )
+							return store[i] = data;
+					}
+				});
+		}
+
+		f.Delete = function (id) {
+			return $http.delete(urlBase + '/' + id)
+				.success(function (data) {
+					for ( var i = 0; i < store.length; i++ )
+					{
+						if ( store[i].ID == id )
+							return store.splice(i, 1);
+					}
+				})
+		}
+		
+		return f;
+	}
+]);
+
 askeecsApp.directive('askeecsLogout', function (AuthService) {
 	return {
 		restrict: 'A',
@@ -207,7 +290,39 @@ askeecsApp.directive('askeecsLogout', function (AuthService) {
 			element.on ? element.on('click', evHandler) : element.bind('click', evHandler);
 		 }
 	}
-})
+});
+
+askeecsApp.directive('question', ['Questions',
+	function (Questions) {
+		function link ( scope, element, attributes ) {
+			console.log("Generating question...", attributes.question);
+			Questions.Get(attributes.question).success(function(data) {
+				console.log(data)
+			})
+		}
+
+		return {
+			restruct: 'A',
+			link: link
+		}
+	}
+]);
+
+askeecsApp.directive('comment', ['Questions',
+	function (Questions) {
+		function link ( scope, element, attributes ) {
+			console.log("Generating comment...", attributes.question);
+			Questions.Get(attributes.question).success(function(data) {
+				console.log(data)
+			})
+		}
+
+		return {
+			restruct: 'A',
+			link: link
+		}
+	}
+]);
 
 askeecsApp.filter('commentremark', function () {
 	return function(input) {

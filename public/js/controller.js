@@ -1,10 +1,14 @@
 var askeecsControllers = angular.module('askeecsControllers', ['ngCookies']);
 
-askeecsControllers.controller('QuestionListCtrl', ['$scope', '$http',
-	function ($scope, $http) {
-		$http.get('/q').success(function(data) {
-			$scope.questions = data;
-		});
+askeecsControllers.controller('QuestionListCtrl', ['$scope', 'Questions',
+	function ($scope, Questions) {
+		Questions.List()
+			.success(function (questions) {
+				$scope.questions = questions;
+			})
+			.error(function (error) {
+				$scope.error = 'Unable to load questions';
+			});
 	}
 ]);
 
