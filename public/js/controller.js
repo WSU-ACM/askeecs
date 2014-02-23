@@ -79,19 +79,19 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 			// Default to a non error state
 			var err = false;
 
-			if ($scope.markdown.length < 50)
+			if ($scope.question.markdown.length < 50)
 			{
 				$scope.error.markdown = "Your question must be 50 characters or more."
 				err = true;
 			}
 
-			if ($scope.title.length == 0)
+			if ($scope.question.title.length == 0)
 			{
 				$scope.error.title = "You must enter a title."
 				err = true;
 			}
 
-			if ($scope.tags.length == 0)
+			if ($scope.question.tags.length == 0)
 			{
 				$scope.error.tags = "You must have at least one tag."
 				err = true;
@@ -104,7 +104,7 @@ askeecsControllers.controller('QuestionAskCtrl', ['$scope', '$http', '$window', 
 			$http({
 				method: 'POST',
 				url: '/q',
-				data: {Title:$scope.title, Body: $scope.markdown, Tags: $scope.tags.split(' ')}
+				data: {Title:$scope.question.title, Body: $scope.question.markdown, Tags: $scope.question.tags.split(' ')}
 			}).success(function(data) {
 				// TODO: this should be a JSON response
 				$location.path("/questions/"+data);	
