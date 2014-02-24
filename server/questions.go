@@ -33,11 +33,16 @@ func QuestionFromJson(r io.Reader) *Question {
 	return q
 }
 
-func (q *Question) JsonBytes() []byte {
-	buf := new(bytes.Buffer)
-	enc := json.NewEncoder(buf)
-	enc.Encode(q)
-	return buf.Bytes()
+func (q *Question) AddComment(c *Comment) {
+	if c != nil {
+		q.Comments = append(q.Comments, c)
+	}
+}
+
+func (q *Question) AddResponse(r *Response) {
+	if r != nil {
+		q.Responses = append(q.Responses, r)
+	}
 }
 
 func (q *Question) New() I {

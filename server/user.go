@@ -3,7 +3,6 @@ package main
 import (
 	"labix.org/v2/mgo/bson"
 	"time"
-	"bytes"
 	"encoding/json"
 	"io"
 )
@@ -24,13 +23,6 @@ func (u *User) GetID() bson.ObjectId {
 	return u.ID
 }
 
-func (u *User) JsonBytes() []byte {
-	buf := new(bytes.Buffer)
-	enc := json.NewEncoder(buf)
-	enc.Encode(u)
-	return buf.Bytes()
-}
-
 type AuthAttempt struct {
 	Username string
 	Password string
@@ -47,3 +39,25 @@ func AuthFromJson(r io.Reader) *AuthAttempt {
 	return a
 }
 
+func (u *User) MakeComment(r io.Reader) *Comment {
+	c := CommentFromJson(r)
+	if c == nil {
+		return nil
+	}
+	c.Author = u.Username
+	c.ID = bson.NewObjectId()
+	c.Timestamp = time.Now()
+	return c
+}
+
+func (u *User) MakeRespose(r io.Reader) *Response {
+	resp := ResponseFromJson(r)
+	if r == nil {
+		return nil
+	}
+
+	resp.Author = u.Username
+	resp.ID = bson.NewObjectId()
+	resp.Timestamp = time.Now()
+	return resp
+}
