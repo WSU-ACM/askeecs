@@ -36,8 +36,8 @@ func (s *AEServer) HandlePostQuestion(w http.ResponseWriter, r *http.Request, se
 		return 404, Message("Not Logged In!")
 	}
 	tok := login.(string)
-	user, ok := s.tokens[tok]
-	if !ok {
+	user := s.syncGetUser(tok)
+	if user == nil {
 		return http.StatusBadRequest, Message("Invalid Cookie!")
 	}
 
@@ -108,8 +108,7 @@ func (s *AEServer) HandleLogout(session sessions.Session) {
 	if toki == nil {
 		return
 	}
-	tok := toki.(string)
-	delete(s.tokens, tok)
+	s.ch_logout <- toki.(string)
 	session.Delete("Login")
 }
 
