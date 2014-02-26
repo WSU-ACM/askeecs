@@ -119,8 +119,12 @@ func (s *AEServer) HandleLogin(r *http.Request, params martini.Params, session s
 		return 404, Message("Login Failed")
 	}
 
-	salt,ok := s.salts[a.Username]
-	if !ok {
+	sltr := StrResponse{}
+	sltr.Arg = a.Username
+	sltr.Resp = make(chan string)
+	s.ch_getsalt <-sltr
+	salt := <-sltr.Resp
+	if salt == "" {
 		return 401,Message("No login salt registered!")
 	}
 

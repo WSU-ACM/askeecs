@@ -25,8 +25,20 @@ type AEServer struct {
 	ch_getu chan *AuthReq
 
 	salts map[string]string
+	ch_newsalt chan KVPair
+	ch_delsalt chan string
+	ch_getsalt chan StrResponse
 
 	m *martini.ClassicMartini
+}
+
+type KVPair struct {
+	Key, Val string
+}
+
+type StrResponse struct {
+	Arg string
+	Resp chan string
 }
 
 type Session struct {
@@ -51,6 +63,13 @@ func NewServer() *AEServer {
 	s.tokens = make(map[string]*User)
 	s.salts = make(map[string]string)
 
+	s.ch_delsalt = make(chan string)
+	s.ch_getsalt = make(chan StrResponse)
+	s.ch_getu = make(chan *AuthReq)
+	s.ch_login = make(chan *Session)
+	s.ch_logout = make(chan string)
+	s.ch_newsalt = make(chan KVPair)
+
 	//Initialize martini
 	s.m = martini.Classic()
 	return s
@@ -69,6 +88,8 @@ func (s *AEServer) Init(secretfile string) {
 }
 
 func (s *AEServer) Serve() {
+	go s.SyncSessionRoutine()
+	go s.SyncSaltRoutine()
 	s.m.Run()
 }
 
@@ -122,7 +143,7 @@ func (s *AEServer) syncGetUser(token string) *User {
 	return u
 }
 
-func (s *AEServer) SyncRoutine() {
+func (s *AEServer) SyncSessionRoutine() {
 	for {
 		select {
 		case ses := <-s.ch_login:
@@ -138,6 +159,24 @@ func (s *AEServer) SyncRoutine() {
 			} else {
 				get.Ret <- u
 			}
+		}
+	}
+}
+
+func (s *AEServer) SyncSaltRoutine() {
+	for {
+		select {
+		case gr := <-s.ch_getsalt:
+			slt,ok := s.salts[gr.Arg]
+			if !ok {
+				gr.Resp <- ""
+			} else {
+				gr.Resp <- slt
+			}
+		case dsl := <-s.ch_delsalt:
+			delete(s.salts, dsl)
+		case add := <-s.ch_newsalt:
+			s.salts[add.Key] = add.Val
 		}
 	}
 }
