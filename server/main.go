@@ -1,9 +1,12 @@
 package main
 
-func main() {
-	s := NewServer()
+import (
+	"github.com/whyrusleeping/askeecs/server/rest"
+)
 
-	//Load cookie jar secret from file
-	s.Init(".secret")
-	s.Serve()
+func main () {
+	api := rest.Api{}
+	api.ConnString = "localhost:27017"
+	api.DBName = "askeecs"
+	api.Run(":8080")
 }
