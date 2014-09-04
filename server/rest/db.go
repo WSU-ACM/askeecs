@@ -3,9 +3,11 @@ package rest
 import (
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
-	"log"
 	"errors"
+	. "github.com/visionmedia/go-debug"
 )
+
+var db_debug = Debug("askeecs:db")
 
 var ErrorNotFound = errors.New("No documents found!")
 var ErrorNullResponse = errors.New("Got back null response from mgo.")
@@ -54,30 +56,33 @@ type Collection struct {
 
 func (c *Collection) Save(doc I) error {
 	//TODO: handle errors?
-	log.Printf("Saving document.")
+	db_debug("Saving document.")
 	err := c.col.Insert(doc)
 	return err
 }
 
 func (c *Collection) Update(doc I) error {
-	log.Println("Updating Document.")
+	db_debug("Updating Document.")
 	err := c.col.UpdateId(doc.GetID(), doc)
 	return err
 }
 
 func (c *Collection) FindByID(ID bson.ObjectId) I {
 	q := c.col.FindId(ID)
+
 	if q == nil {
-		log.Println(ErrorNullResponse)
+		db_debug("%s", ErrorNullResponse)
 		return nil
 	}
+
 	cnt,err := q.Count()
+
 	if err != nil {
-		log.Println(err)
+		db_debug("%s", err)
 		return nil
 	}
 	if cnt < 1 {
-		log.Println(ErrorNotFound)
+		db_debug("%s", ErrorNotFound)
 		return nil
 	}
 	obj := c.template.New()
@@ -86,22 +91,22 @@ func (c *Collection) FindByID(ID bson.ObjectId) I {
 }
 
 func (c *Collection) FindWhere(match bson.M) []I {
-	log.Println(match)
+	db_debug("%s", match)
 	q := c.col.Find(match)
 	if q == nil {
-		log.Println(ErrorNullResponse)
+		db_debug("%s", ErrorNullResponse)
 		return nil
 	}
 
 	n,err := q.Count()
 	if err != nil {
-		log.Println(err)
+		db_debug("%s", err)
 		return nil
 	}
 	var out []I
 
 	if n == 0 {
-		log.Println("Nothing matched the query...")
+		db_debug("Nothing matched the query...")
 		return out
 	}
 
@@ -117,16 +122,16 @@ func (c *Collection) FindWhere(match bson.M) []I {
 func (c *Collection) FindOneWhere(match bson.M) I {
 	q := c.col.Find(match)
 	if q == nil {
-		log.Println(ErrorNullResponse)
+		db_debug("%s", ErrorNullResponse)
 		return nil
 	}
 	cnt,err := q.Count()
 	if err != nil {
-		log.Println(err)
+		db_debug("%s", err)
 		return nil
 	}
 	if cnt < 1 {
-		log.Println(ErrorNotFound)
+		db_debug("%s", ErrorNotFound)
 		return nil
 	}
 	obj := c.template.New()
