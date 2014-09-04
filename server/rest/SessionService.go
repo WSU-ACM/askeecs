@@ -150,6 +150,7 @@ func (p *SessionService) ValidateSession(c *gin.Context) {
 		if sess.ValidUser(user) {
 			sess.Valid = true
 			kvstore.Set("Session", salt.(string), true)
+			kvstore.Set("Session", salt.(string) + ":role", user.Role)
 		} else {
 			sess.Valid = false
 			kvstore.Set("Session", salt.(string), false)

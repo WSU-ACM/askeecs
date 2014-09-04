@@ -28,6 +28,7 @@ func TestSessionService (T *testing.T) {
 	user.Username = "Travis"
 	user.Public   = RandString()
 	user.Password = Protect(user.Username + "password", user.Public)
+	user.Role     = "master"
 	
 	db.collections["Users"].Save(&user)
 

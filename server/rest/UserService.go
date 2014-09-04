@@ -3,7 +3,7 @@ package rest
 
 import (
 	"github.com/gin-gonic/gin"
-//	"github.com/whyrusleeping/askeecs/server/kvstore"
+	"github.com/whyrusleeping/askeecs/server/kvstore"
 	"labix.org/v2/mgo/bson"
 )
 
@@ -16,6 +16,7 @@ type User struct {
 	Username string `json:"username"`
 	Password string `json:"password,omitempty" bson: "password"`
 	Public   string `json:"public"`
+	Role     string `json:"role"`
 }
 
 func (this *User) GetID() bson.ObjectId {
@@ -37,12 +38,27 @@ func (this *User) New() I {
 
 func (p *UserService) Bind (app *gin.Engine) {
 	p.db.Collection("Users", new(User))
+
 	app.GET("/users", p.ListUsers)
 	app.GET("/users/:id", p.GetUser)
 	app.POST("/users", p.CreateUser)
 }
 
 func (p *UserService) ListUsers (c *gin.Context) {
+	session := c.Request.Header.Get("session")
+
+	role, found := kvstore.Get("Session", session + ":role")
+
+	if !found {
+		c.JSON(501, gin.H{"message": "Session does not exist"})
+		return
+	}
+
+	if !rbac.IsGranted(role.(string), "list.users", nil) {
+		c.JSON(412, gin.H{"message": "No permissions"})
+		return
+	}
+
 	list := p.db.collections["Users"].All()
 	if list == nil {
 		c.JSON(404, gin.H{"message": "no records found"})
