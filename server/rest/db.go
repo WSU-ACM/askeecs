@@ -98,12 +98,13 @@ func (c *Collection) FindWhere(match bson.M) []I {
 		log.Println(err)
 		return nil
 	}
+	var out []I
+
 	if n == 0 {
 		log.Println("Nothing matched the query...")
-		return nil
+		return out
 	}
 
-	var out []I
 	i := q.Iter()
 	v := c.template.New()
 	for i.Next(v) {
@@ -112,3 +113,24 @@ func (c *Collection) FindWhere(match bson.M) []I {
 	}
 	return out
 }
+
+func (c *Collection) FindOneWhere(match bson.M) I {
+	q := c.col.Find(match)
+	if q == nil {
+		log.Println(ErrorNullResponse)
+		return nil
+	}
+	cnt,err := q.Count()
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	if cnt < 1 {
+		log.Println(ErrorNotFound)
+		return nil
+	}
+	obj := c.template.New()
+	q.One(obj)
+	return obj
+}
+
