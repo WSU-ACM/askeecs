@@ -13,7 +13,7 @@ import (
 	. "github.com/visionmedia/go-debug"
 )
 
-var debug = Debug("askeecs:session")
+var session_debug = Debug("askeecs:session")
 
 type SessionService struct {
 	db *Database
@@ -51,7 +51,7 @@ func (s *Session) Marshal() []byte {
 	b, err := json.Marshal(s)
 
 	if err != nil {
-		debug("Error Marshalling")
+		session_debug("Error Marshalling")
 	}
 
 	return b
@@ -61,9 +61,9 @@ func (s *Session) Decode(b []byte) {
 	dec := json.NewDecoder(bytes.NewBuffer(b))
 
 	if err := dec.Decode(s); err == nil {
-		debug("Worked")
+		session_debug("Worked")
 	} else if err != nil {
-		debug("Error")
+		session_debug("Error")
 		panic(err)
 		return
 	}
@@ -98,7 +98,7 @@ func (p *SessionService) CreateSession (c *gin.Context) {
 		salt     := RandString()
 		sess.Salt = salt
 
-		debug("Generated salt for %s [%s]", sess.Username, salt)
+		session_debug("Generated salt for %s [%s]", sess.Username, salt)
 
 		kvstore.Set("Session", sess.Username+":salt", salt)
 		kvstore.Set("Session", salt, false)
