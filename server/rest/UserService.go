@@ -5,8 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 //	"github.com/whyrusleeping/askeecs/server/kvstore"
 	"labix.org/v2/mgo/bson"
-	"bytes"
-	"encoding/json"
 )
 
 type UserService struct {
@@ -16,7 +14,7 @@ type UserService struct {
 type User struct {
 	ID bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Username string `json:"username"`
-	Password string `json:"password,-" bson: "password"`
+	Password string `json:"password,omitempty" bson: "password"`
 	Public   string `json:"public"`
 }
 
@@ -24,28 +22,13 @@ func (this *User) GetID() bson.ObjectId {
 	return this.ID
 }
 
-func (s *User) Marshal() []byte {
-	s.Password = ""
-	session_debug("Marhal user")
-	b, err := json.Marshal(s)
+func (this *User) Sanitize() User {
+	var user User
 
-	if err != nil {
-		session_debug("Error Marshalling")
-	}
+	user = *this
+	user.Password = ""
 
-	return b
-}
-
-func (s *User) Decode(b []byte) {
-	dec := json.NewDecoder(bytes.NewBuffer(b))
-
-	if err := dec.Decode(s); err == nil {
-		session_debug("Worked")
-	} else if err != nil {
-		session_debug("Error")
-		panic(err)
-		return
-	}
+	return user
 }
 
 func (this *User) New() I {
@@ -72,13 +55,13 @@ func (p *UserService) ListUsers (c *gin.Context) {
 func (p *UserService) GetUser(c *gin.Context) {
 	var user_id = c.Params.ByName("id")
 
-	var user User
 	result := p.db.collections["Users"].FindByID(bson.ObjectIdHex(user_id))
 
 	if result == nil {
 		c.JSON(500, gin.H{"message": "Could not find user"})
 	} else {
-		c.JSON(200, user)
+		user := result.(*User)
+		c.JSON(200, user.Sanitize())
 	}
 }
 
@@ -97,7 +80,7 @@ func (p *UserService) CreateUser(c *gin.Context) {
 			return
 		}
 
-		c.JSON(200, user)
+		c.JSON(200, user.Sanitize())
 
 	}
 }
