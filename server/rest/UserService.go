@@ -43,10 +43,15 @@ func (p *UserService) Bind (app *gin.Engine) {
 }
 
 func (p *UserService) ListUsers (c *gin.Context) {
-	list := p.db.collections["Users"].FindWhere(bson.M{})
+	list := p.db.collections["Users"].All()
 	if list == nil {
 		c.JSON(404, gin.H{"message": "no records found"})
 		return
+	}
+
+	for i, value := range list {
+		user := (value.(*User)).Sanitize()
+		list[i] = &user
 	}
 
 	c.JSON(200, list)
