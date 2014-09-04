@@ -15,7 +15,7 @@ type User struct {
 	ID bson.ObjectId `json:"_id,omitempty"`
 	Username string `json:"username"`
 	Password string `json:"-"`
-	Salt     string `json:"salt"`
+	Public   string `json:"public"`
 }
 
 func (this *User) GetID() bson.ObjectId {
@@ -29,6 +29,7 @@ func (this *User) New() I {
 func (p *UserService) Bind (app *gin.Engine) {
 	p.db.Collection("Users", new(User))
 	app.GET("/users", p.ListUsers)
+	app.POST("/users", p.CreateUser)
 }
 
 func (p *UserService) ListUsers (c *gin.Context) {
@@ -39,6 +40,25 @@ func (p *UserService) ListUsers (c *gin.Context) {
 	}
 
 	c.JSON(200, list)
+}
+
+func (p *UserService) CreateUser(c *gin.Context) {
+	var user User
+	var err error
+
+	if c.Bind(&user) {
+		user.ID = bson.NewObjectId()
+		err = p.db.collections["Users"].Save(&user)
+
+		if err != nil {
+			panic(err)
+			c.JSON(500, gin.H{"message": "error making user"})
+			return
+		}
+
+		c.JSON(200, user)
+
+	}
 }
 
 
