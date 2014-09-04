@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 //	"github.com/whyrusleeping/askeecs/server/kvstore"
 	"labix.org/v2/mgo/bson"
+	"bytes"
+	"encoding/json"
 )
 
 type UserService struct {
@@ -14,12 +16,36 @@ type UserService struct {
 type User struct {
 	ID bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Username string `json:"username"`
-	Password string `json:"-"`
+	Password string `json:"password,-" bson: "password"`
 	Public   string `json:"public"`
 }
 
 func (this *User) GetID() bson.ObjectId {
 	return this.ID
+}
+
+func (s *User) Marshal() []byte {
+	s.Password = ""
+	session_debug("Marhal user")
+	b, err := json.Marshal(s)
+
+	if err != nil {
+		session_debug("Error Marshalling")
+	}
+
+	return b
+}
+
+func (s *User) Decode(b []byte) {
+	dec := json.NewDecoder(bytes.NewBuffer(b))
+
+	if err := dec.Decode(s); err == nil {
+		session_debug("Worked")
+	} else if err != nil {
+		session_debug("Error")
+		panic(err)
+		return
+	}
 }
 
 func (this *User) New() I {
@@ -62,6 +88,7 @@ func (p *UserService) CreateUser(c *gin.Context) {
 
 	if c.Bind(&user) {
 		user.ID = bson.NewObjectId()
+		db_debug("%s", user)
 		err = p.db.collections["Users"].Save(&user)
 
 		if err != nil {

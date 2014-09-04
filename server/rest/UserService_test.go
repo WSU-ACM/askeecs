@@ -18,7 +18,6 @@ func TestUserService (T *testing.T) {
 	users.Bind(app)
 
 	db.Collection("Users", new(User))
-	db.db.C("Users").DropCollection()
 
 	ts := httptest.NewServer(app)
 	
@@ -41,6 +40,7 @@ func TestUserService (T *testing.T) {
 	}
 
 	if len(result_user.Password) > 0 {
+		T.Log("Password: %s", result_user.Password)
 		T.Fatal("Password was present in the response")
 	}
 
