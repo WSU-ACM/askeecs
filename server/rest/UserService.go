@@ -12,7 +12,7 @@ type UserService struct {
 }
 
 type User struct {
-	ID bson.ObjectId `json:"_id,omitempty"`
+	ID bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Username string `json:"username"`
 	Password string `json:"-"`
 	Public   string `json:"public"`
@@ -29,6 +29,7 @@ func (this *User) New() I {
 func (p *UserService) Bind (app *gin.Engine) {
 	p.db.Collection("Users", new(User))
 	app.GET("/users", p.ListUsers)
+	app.GET("/users/:id", p.GetUser)
 	app.POST("/users", p.CreateUser)
 }
 
@@ -42,6 +43,19 @@ func (p *UserService) ListUsers (c *gin.Context) {
 	c.JSON(200, list)
 }
 
+func (p *UserService) GetUser(c *gin.Context) {
+	var user_id = c.Params.ByName("id")
+
+	var user User
+	result := p.db.collections["Users"].FindByID(bson.ObjectIdHex(user_id))
+
+	if result == nil {
+		c.JSON(500, gin.H{"message": "Could not find user"})
+	} else {
+		c.JSON(200, user)
+	}
+}
+
 func (p *UserService) CreateUser(c *gin.Context) {
 	var user User
 	var err error
@@ -51,8 +65,8 @@ func (p *UserService) CreateUser(c *gin.Context) {
 		err = p.db.collections["Users"].Save(&user)
 
 		if err != nil {
-			panic(err)
 			c.JSON(500, gin.H{"message": "error making user"})
+			panic(err)
 			return
 		}
 
