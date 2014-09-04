@@ -55,4 +55,16 @@ func TestUserService (T *testing.T) {
 		T.Fatal("Password was present in the response")
 	}
 
+	if result_user.Username != user.Username {
+		T.Fatal("Username does not match", result_user.Username , user.Username)
+	}
+
+	if result_user.Public != user.Public {
+		T.Fatal("Public key does not match")
+	}
+
+	if len(result_user.ID) == 0  {
+		T.Fatal("No id was returned")
+	}
+
 }
