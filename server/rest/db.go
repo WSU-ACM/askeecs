@@ -90,6 +90,10 @@ func (c *Collection) FindByID(ID bson.ObjectId) I {
 	return obj
 }
 
+func (c *Collection) All() []I {
+	return c.FindWhere(bson.M{})
+}
+
 func (c *Collection) FindWhere(match bson.M) []I {
 	db_debug("%s", match)
 	q := c.col.Find(match)
