@@ -6,12 +6,13 @@ import (
 	"github.com/mikespook/gorbac"
 	//"labix.org/v2/mgo/bson"
 	"net/http/httptest"
-	"net/http"
+//	"net/http"
 	"testing"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestUserService (T *testing.T) {
-	app := gin.Default()
+	app := gin.New()
 
 	rbac = gorbac.New()
 	rbac.Add("guest", []string{"create.user"}, nil)
@@ -31,91 +32,110 @@ func TestUserService (T *testing.T) {
 	
 	var user User
 	var result_user User
-
 	user.Username = "Travis"
 	user.Public   = RandString()
 	user.Password = Protect(user.Username + "password", user.Public)
 	user.Role     = "master"
 
-	res, err := napping.Post(ts.URL + "/users", &user, &result_user, nil)
+	Convey("Create new user", T, func() {
 
-	if err != nil {
-		T.Fatal(err)
-	}
+		res, _ := napping.Post(ts.URL + "/users", &user, &result_user, nil)
 
-	if res.Status() != 200 {
-		T.Log("Expected status to be %s got %s", 200, res.Status())
-		T.Fatal()
-	}
+		Convey("User should be created", func() {
+			So(res.Status(), ShouldEqual, 200)
+		})
 
-	if len(result_user.Password) > 0 {
-		T.Log("Password: %s", result_user.Password)
-		T.Fatal("Password was present in the response")
-	}
+		Convey("Password should not be sent back with the response", func() {
+			So(result_user.Password, ShouldBeBlank)
+		})
 
-	res, err = napping.Get(ts.URL + "/users/" + result_user.ID.Hex(), nil, &result_user, nil)
+	})
 
-	if res.Status() != 200 {
-		T.Log("Expected status to be %s got %s", 200, res.Status())
-		T.Fatal()
-	}
 
-	if len(result_user.Password) > 0 {
-		T.Fatal("Password was present in the response")
-	}
+	Convey("User should be retrieveable with their ID", T, func() {
+		res, _ := napping.Get(ts.URL + "/users/" + result_user.ID.Hex(), nil, &result_user, nil)
 
-	if result_user.Username != user.Username {
-		T.Fatal("Username does not match", result_user.Username , user.Username)
-	}
+		Convey("User should exist", func() {
+			So(res.Status(), ShouldEqual, 200)
+		})
 
-	if result_user.Public != user.Public {
-		T.Fatal("Public key does not match")
-	}
+		Convey("Password should not be sent back with the response", func() {
+			So(result_user.Password, ShouldBeBlank)
+		})
 
-	if len(result_user.ID) == 0  {
-		T.Fatal("No id was returned")
-	}
+		Convey("The username should be the same", func() {
+			So(user.Username, ShouldEqual, result_user.Username)
+		})
+
+		Convey("The public key should be the same", func() {
+			So(user.Public, ShouldEqual, result_user.Public)
+		})
+
+		Convey("User should get an ID", func() {
+			So(result_user.ID.Hex() , ShouldNotBeBlank)
+		})
+	})
 
 	var sess Session
-
 	sess.Username = "Travis"
 
-	res, err = napping.Post(ts.URL + "/session", &sess, &sess, nil)
+	Convey("User should be able to login", T, func() {
+		res, _ := napping.Post(ts.URL + "/session", &sess, &sess, nil)
 
-	sess.Password = sess.HashPlainTextPassword("password")
+		Convey("A new session should be created", func() {
+			So(res.Status(), ShouldEqual, 200)
+		})
 
-	res, err = napping.Put(ts.URL + "/session/" +sess.Salt, &sess, &sess, nil)
+		Convey("A salt should be returned", func() {
+			So(sess.Salt, ShouldNotBeBlank)
+		})
 
-	var user_list []User
+		Convey("A public key should be returned", func() {
+			So(sess.Public, ShouldNotBeBlank)
+		})
 
-	res, err = napping.Get(ts.URL + "/users", nil, &user_list, nil)
+		sess.Password = sess.HashPlainTextPassword("password")
 
-	if res.Status() != 501 {
-		T.Logf("Exected status to be %s got %s", 501, res.Status())
-		T.Fatal()
-	}
+		res, _ = napping.Put(ts.URL + "/session/" +sess.Salt, &sess, &sess, nil)
 
-	s := napping.Session{}
+		Convey("Session should be created", func() {
+			So(res.Status(), ShouldEqual, 200)
+		})
 
-	r := napping.Request{
-		Method: "GET",
-		Url:    ts.URL + "/users",
-		Params: nil,
-		Result: &user_list,
-		Error:  nil,
-	}
+		Convey("Session should be validated", func() {
+			So(sess.Valid, ShouldBeTrue)
+		})
+/*
+		var user_list []User
 
-	r.Header = &http.Header{}
+		res, _ = napping.Get(ts.URL + "/users", nil, &user_list, nil)
 
-	r.Header.Add("session", sess.Salt)
+		if res.Status() != 501 {
+			T.Logf("Exected status to be %s got %s", 501, res.Status())
+			T.Fatal()
+		}
 
-	res, err = s.Send(&r)
+		s := napping.Session{}
 
-	if res.Status() != 200 {
-		T.Logf("Exected status to be %s got %s", 200, res.Status())
-		T.Fatal()
-	}
+		r := napping.Request{
+			Method: "GET",
+			Url:    ts.URL + "/users",
+			Params: nil,
+			Result: &user_list,
+			Error:  nil,
+		}
 
-	T.Log(user_list)
+		r.Header = &http.Header{}
+
+		r.Header.Add("session", sess.Salt)
+
+		res, _ = s.Send(&r)
+
+		if res.Status() != 200 {
+			T.Logf("Exected status to be %s got %s", 200, res.Status())
+		}
+		*/
+		
+	})
 
 }

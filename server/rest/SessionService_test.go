@@ -6,11 +6,15 @@ import (
 	"labix.org/v2/mgo/bson"
 	"net/http/httptest"
 	"testing"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 
 func TestSessionService (T *testing.T) {
-	app := gin.Default()
+	app := gin.New()
+	Convey("1 should equal 1", T, func() {
+		So(1, ShouldEqual, 1)
+	})
 
 	db := NewDatabase("localhost:27017", "test")
 
