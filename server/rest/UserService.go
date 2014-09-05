@@ -40,6 +40,7 @@ func (p *UserService) Bind (app *gin.Engine) {
 
 	app.GET("/users", p.ListUsers)
 	app.GET("/users/:id", p.GetUser)
+	app.DELETE("/users/:id", p.DeleteUser)
 	app.POST("/users", p.CreateUser)
 }
 
@@ -75,6 +76,18 @@ func (p *UserService) GetUser(c *gin.Context) {
 	} else {
 		user := result.(*User)
 		c.JSON(200, user.Sanitize())
+	}
+}
+
+func (p *UserService) DeleteUser(c *gin.Context) {
+	var user_id = c.Params.ByName("id")
+
+	err := p.db.collections["Users"].RemoveById(bson.ObjectIdHex(user_id))
+
+	if err == nil {
+		c.JSON(500, gin.H{"message": "Could not find user"})
+	} else {
+		c.JSON(200, gin.H{"message": "Removed"})
 	}
 }
 

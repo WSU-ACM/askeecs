@@ -67,6 +67,12 @@ func (c *Collection) Update(doc I) error {
 	return err
 }
 
+func (c *Collection) RemoveById(ID bson.ObjectId) error {
+	err := c.col.RemoveId(ID)
+
+	return err
+}
+
 func (c *Collection) FindByID(ID bson.ObjectId) I {
 	q := c.col.FindId(ID)
 
