@@ -3,7 +3,6 @@ package rest
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/whyrusleeping/askeecs/server/kvstore"
 	"labix.org/v2/mgo/bson"
 )
 
@@ -45,16 +44,9 @@ func (p *UserService) Bind (app *gin.Engine) {
 }
 
 func (p *UserService) ListUsers (c *gin.Context) {
-	session := c.Request.Header.Get("session")
+	sess,_ := GetSession(c)
 
-	role, found := kvstore.Get("Session", session + ":role")
-
-	if !found {
-		c.JSON(501, gin.H{"message": "Session does not exist"})
-		return
-	}
-
-	if !rbac.IsGranted(role.(string), "list.users", nil) {
+	if !rbac.IsGranted(sess.Role, "list.user", nil) {
 		c.JSON(412, gin.H{"message": "No permissions"})
 		return
 	}

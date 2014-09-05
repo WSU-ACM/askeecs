@@ -6,6 +6,7 @@ import (
 	"github.com/mikespook/gorbac"
 	//"labix.org/v2/mgo/bson"
 	"net/http/httptest"
+	"net/http"
 	"testing"
 )
 
@@ -89,8 +90,12 @@ func TestUserService (T *testing.T) {
 
 	res, err = napping.Get(ts.URL + "/users", nil, &user_list, nil)
 
-	s := napping.Session{}
+	if res.Status() != 501 {
+		T.Logf("Exected status to be %s got %s", 501, res.Status())
+		T.Fatal()
+	}
 
+	s := napping.Session{}
 
 	r := napping.Request{
 		Method: "GET",
@@ -100,10 +105,16 @@ func TestUserService (T *testing.T) {
 		Error:  nil,
 	}
 
+	r.Header = &http.Header{}
+
 	r.Header.Add("session", sess.Salt)
 
 	res, err = s.Send(&r)
 
+	if res.Status() != 200 {
+		T.Logf("Exected status to be %s got %s", 200, res.Status())
+		T.Fatal()
+	}
 
 	T.Log(user_list)
 

@@ -25,6 +25,7 @@ type Session struct {
 	Salt     string `json:"salt"`
 	Public   string `json:"public"`
 	Valid    bool   `json:"valid"`
+	Role     string `json:"role"`
 }
 
 func (s *Session) ValidUser (user *User) bool {
@@ -44,6 +45,22 @@ func (s *Session) HashPlainTextPassword (password string) string {
 	passhash  = Protect(passhash, s.Salt)
 
 	return passhash
+}
+
+func GetSession (c *gin.Context) (Session, bool) {
+	var sess Session
+	session_id := c.Request.Header.Get("session")
+
+	I, found := kvstore.Get("Session", session_id)
+
+	if !found {
+		c.JSON(501, gin.H{"message": "Session does not exist"})
+		return sess, false
+	}
+
+	sess = I.(Session)
+
+	return sess, true
 }
 
 
@@ -101,7 +118,7 @@ func (p *SessionService) CreateSession (c *gin.Context) {
 		session_debug("Generated salt for %s [%s]", sess.Username, salt)
 
 		kvstore.Set("Session", sess.Username+":salt", salt)
-		kvstore.Set("Session", salt, false)
+		kvstore.Set("Session", salt, nil)
 
 		if result == nil {
 			sess.Public= RandString()
@@ -138,7 +155,6 @@ func (p *SessionService) ValidateSession(c *gin.Context) {
 
 		user := result.(*User)
 
-
 		salt, found := kvstore.Get("Session", sess.Username+":salt")
 
 		if !found {
@@ -146,14 +162,13 @@ func (p *SessionService) ValidateSession(c *gin.Context) {
 			return
 		}
 
-
 		if sess.ValidUser(user) {
 			sess.Valid = true
-			kvstore.Set("Session", salt.(string), true)
-			kvstore.Set("Session", salt.(string) + ":role", user.Role)
+			sess.Role  = user.Role
+			kvstore.Set("Session", salt.(string), sess)
 		} else {
 			sess.Valid = false
-			kvstore.Set("Session", salt.(string), false)
+			kvstore.Set("Session", salt.(string), nil)
 		}
 
 		c.JSON(200, sess)
